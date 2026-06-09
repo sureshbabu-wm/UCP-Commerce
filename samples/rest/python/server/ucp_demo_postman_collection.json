@@ -1,0 +1,461 @@
+{
+	"info": {
+		"_postman_id": "a244ffdf-bc21-4f10-ae4a-c0b91e9a2631",
+		"name": "UCP REST Demo (Python)",
+		"description": "Complete endpoint transaction lifecycle demo for the Universal Commerce Protocol (UCP) REST Python Server storefront.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Step 0: Business Discovery",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/.well-known/ucp",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						".well-known",
+						"ucp"
+					]
+				},
+				"description": "Discover business services, capabilities, and payment handlers dynamically."
+			},
+			"response": []
+		},
+		{
+			"name": "Step 1: Search Catalog",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/catalog/search?q=roses&limit=10",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"catalog",
+						"search"
+					],
+					"query": [
+						{
+							"key": "q",
+							"value": "roses",
+							"description": "Search term to match against product title (optional)"
+						},
+						{
+							"key": "limit",
+							"value": "10",
+							"description": "Max number of results to return (optional)"
+						}
+					]
+				},
+				"description": "Browse or search the products available in store using standard UCP Item structures."
+			},
+			"response": []
+		},
+		{
+			"name": "Step 1b: Lookup Product",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/catalog/lookup/bouquet_roses",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"catalog",
+						"lookup",
+						"bouquet_roses"
+					]
+				},
+				"description": "Look up details for a specific product ID (e.g. bouquet_roses)."
+			},
+			"response": []
+		},
+		{
+			"name": "Step 2: Create Checkout Session",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"if (jsonData.id) {",
+							"    pm.collectionVariables.set(\"checkout_id\", jsonData.id);",
+							"    console.log(\"Saved checkout_id: \" + jsonData.id);",
+							"}",
+							"if (jsonData.line_items && jsonData.line_items.length > 0) {",
+							"    pm.collectionVariables.set(\"line_item_1_id\", jsonData.line_items[0].id);",
+							"    console.log(\"Saved line_item_1_id: \" + jsonData.line_items[0].id);",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "UCP-Agent",
+						"value": "profile=\"https://agent.example/profile\"",
+						"type": "text"
+					},
+					{
+						"key": "Request-Signature",
+						"value": "test",
+						"type": "text"
+					},
+					{
+						"key": "Idempotency-Key",
+						"value": "{{$guid}}",
+						"type": "text"
+					},
+					{
+						"key": "Request-Id",
+						"value": "{{$guid}}",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"line_items\": [\n    {\n      \"item\": {\n        \"id\": \"bouquet_roses\",\n        \"title\": \"Bouquet of Red Roses\"\n      },\n      \"quantity\": 1\n    }\n  ],\n  \"buyer\": {\n    \"full_name\": \"John Doe\",\n    \"email\": \"john.doe@example.com\"\n  },\n  \"currency\": \"USD\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/checkout-sessions",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"checkout-sessions"
+					]
+				},
+				"description": "Initialize a new checkout session. The script will automatically store the returned `id` in the `{{checkout_id}}` variable."
+			},
+			"response": []
+		},
+		{
+			"name": "Step 3: Update Cart & Apply Discount",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"if (jsonData.line_items) {",
+							"    jsonData.line_items.forEach(function(item) {",
+							"        if (item.item.id === \"bouquet_roses\") {",
+							"            pm.collectionVariables.set(\"line_item_1_id\", item.id);",
+							"        } else if (item.item.id === \"pot_ceramic\") {",
+							"            pm.collectionVariables.set(\"line_item_2_id\", item.id);",
+							"        }",
+							"    });",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "UCP-Agent",
+						"value": "profile=\"https://agent.example/profile\"",
+						"type": "text"
+					},
+					{
+						"key": "Request-Signature",
+						"value": "test",
+						"type": "text"
+					},
+					{
+						"key": "Idempotency-Key",
+						"value": "{{$guid}}",
+						"type": "text"
+					},
+					{
+						"key": "Request-Id",
+						"value": "{{$guid}}",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"id\": \"{{checkout_id}}\",\n  \"line_items\": [\n    {\n      \"id\": \"{{line_item_1_id}}\",\n      \"item\": {\n        \"id\": \"bouquet_roses\",\n        \"title\": \"Bouquet of Red Roses\"\n      },\n      \"quantity\": 1\n    },\n    {\n      \"id\": \"{{$guid}}\",\n      \"item\": {\n        \"id\": \"pot_ceramic\",\n        \"title\": \"Ceramic Pot\"\n      },\n      \"quantity\": 1\n    }\n  ],\n  \"currency\": \"USD\",\n  \"discounts\": {\n    \"codes\": [\n      \"10OFF\"\n    ]\n  }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/checkout-sessions/{{checkout_id}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"checkout-sessions",
+						"{{checkout_id}}"
+					]
+				},
+				"description": "Update quantities/items in the cart and apply promotional codes."
+			},
+			"response": []
+		},
+		{
+			"name": "Step 4: Update Fulfillment Details",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "UCP-Agent",
+						"value": "profile=\"https://agent.example/profile\"",
+						"type": "text"
+					},
+					{
+						"key": "Request-Signature",
+						"value": "test",
+						"type": "text"
+					},
+					{
+						"key": "Idempotency-Key",
+						"value": "{{$guid}}",
+						"type": "text"
+					},
+					{
+						"key": "Request-Id",
+						"value": "{{$guid}}",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"id\": \"{{checkout_id}}\",\n  \"line_items\": [\n    {\n      \"id\": \"{{line_item_1_id}}\",\n      \"item\": {\n        \"id\": \"bouquet_roses\",\n        \"title\": \"Bouquet of Red Roses\"\n      },\n      \"quantity\": 1\n    },\n    {\n      \"id\": \"{{line_item_2_id}}\",\n      \"item\": {\n        \"id\": \"pot_ceramic\",\n        \"title\": \"Ceramic Pot\"\n      },\n      \"quantity\": 1\n    }\n  ],\n  \"currency\": \"USD\",\n  \"fulfillment\": {\n    \"methods\": [\n      {\n        \"id\": \"method_1\",\n        \"type\": \"shipping\",\n        \"line_item_ids\": [\n          \"{{line_item_1_id}}\",\n          \"{{line_item_2_id}}\"\n        ],\n        \"selected_destination_id\": \"addr_1\",\n        \"groups\": [\n          {\n            \"id\": \"group_1\",\n            \"line_item_ids\": [\n              \"{{line_item_1_id}}\",\n              \"{{line_item_2_id}}\"\n            ],\n            \"selected_option_id\": \"std-ship\"\n          }\n        ]\n      }\n    ]\n  }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/checkout-sessions/{{checkout_id}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"checkout-sessions",
+						"{{checkout_id}}"
+					]
+				},
+				"description": "Add shipping address information to obtain fulfillment methods and rates."
+			},
+			"response": []
+		},
+		{
+			"name": "Step 5: Complete Checkout",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"if (jsonData.order && jsonData.order.id) {",
+							"    pm.collectionVariables.set(\"order_id\", jsonData.order.id);",
+							"    console.log(\"Saved order_id: \" + jsonData.order.id);",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "UCP-Agent",
+						"value": "profile=\"https://agent.example/profile\"",
+						"type": "text"
+					},
+					{
+						"key": "Request-Signature",
+						"value": "test",
+						"type": "text"
+					},
+					{
+						"key": "Idempotency-Key",
+						"value": "{{$guid}}",
+						"type": "text"
+					},
+					{
+						"key": "Request-Id",
+						"value": "{{$guid}}",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"payment\": {\n    \"instruments\": [\n      {\n        \"id\": \"mock_payment_instrument\",\n        \"type\": \"card\",\n        \"display\": {\n          \"brand\": \"amex\",\n          \"last_digits\": \"1111\",\n          \"expiry_month\": 12,\n          \"expiry_year\": 2026\n        },\n        \"handler_id\": \"mock_payment_handler\",\n        \"credential\": {\n          \"type\": \"token\",\n          \"token\": \"success_token\"\n        }\n      }\n    ]\n  },\n  \"risk_signals\": {\n    \"ip\": \"127.0.0.1\",\n    \"browser\": \"postman\"\n  }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/checkout-sessions/{{checkout_id}}/complete",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"checkout-sessions",
+						"{{checkout_id}}",
+						"complete"
+					]
+				},
+				"description": "Submit payment details to finalize order creation. The script automatically stores the returned `order_id` in the `{{order_id}}` variable."
+			},
+			"response": []
+		},
+		{
+			"name": "Step 6: Simulate Shipping",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Simulation-Secret",
+						"value": "{{simulation_secret}}",
+						"type": "text"
+					},
+					{
+						"key": "UCP-Agent",
+						"value": "profile=\"https://agent.example/profile\"",
+						"type": "text"
+					},
+					{
+						"key": "Request-Signature",
+						"value": "test",
+						"type": "text"
+					},
+					{
+						"key": "Request-Id",
+						"value": "{{$guid}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/testing/simulate-shipping/{{order_id}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"testing",
+						"simulate-shipping",
+						"{{order_id}}"
+					]
+				},
+				"description": "Trigger simulated fulfillment shipping on the finalized order."
+			},
+			"response": []
+		},
+		{
+			"name": "Step 7: Retrieve Final Order Details",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "UCP-Agent",
+						"value": "profile=\"https://agent.example/profile\"",
+						"type": "text"
+					},
+					{
+						"key": "Request-Signature",
+						"value": "test",
+						"type": "text"
+					},
+					{
+						"key": "Request-Id",
+						"value": "{{$guid}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/orders/{{order_id}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"orders",
+						"{{order_id}}"
+					]
+				},
+				"description": "Look up final details and shipping state of the order."
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8182",
+			"type": "string"
+		},
+		{
+			"key": "simulation_secret",
+			"value": "test_secret",
+			"type": "string"
+		},
+		{
+			"key": "checkout_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "order_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "line_item_1_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "line_item_2_id",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

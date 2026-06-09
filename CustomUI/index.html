@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>UCP Commerce Assistant</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9ff;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+        .chat-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .action-card {
+            box-shadow: 0px 4px 20px rgba(15, 23, 42, 0.05);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #d3e4fe;
+            border-radius: 10px;
+        }
+        
+        /* Slide-up animations for messages */
+        .slide-up {
+            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+    <script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-background": "#0b1c30",
+                      "outline": "#747688",
+                      "surface": "#f8f9ff",
+                      "on-secondary": "#ffffff",
+                      "on-primary-fixed-variant": "#0035be",
+                      "on-tertiary-fixed-variant": "#812800",
+                      "error-container": "#ffdad6",
+                      "inverse-on-surface": "#eaf1ff",
+                      "on-surface": "#0b1c30",
+                      "background": "#f8f9ff",
+                      "primary-container": "#2e5bff",
+                      "on-secondary-fixed-variant": "#3f465c",
+                      "on-tertiary": "#ffffff",
+                      "on-tertiary-container": "#ffece6",
+                      "surface-container": "#e5eeff",
+                      "surface-variant": "#d3e4fe",
+                      "surface-container-lowest": "#ffffff",
+                      "tertiary": "#993100",
+                      "surface-container-high": "#dce9ff",
+                      "outline-variant": "#c4c5d9",
+                      "secondary-container": "#dae2fd",
+                      "tertiary-fixed": "#ffdbcf",
+                      "secondary-fixed": "#dae2fd",
+                      "on-tertiary-fixed": "#380d00",
+                      "primary-fixed-dim": "#b8c3ff",
+                      "error": "#ba1a1a",
+                      "on-error-container": "#93000a",
+                      "surface-dim": "#cbdbf5",
+                      "on-primary-fixed": "#001356",
+                      "secondary-fixed-dim": "#bec6e0",
+                      "on-secondary-container": "#5c647a",
+                      "tertiary-container": "#c24100",
+                      "surface-container-highest": "#d3e4fe",
+                      "on-secondary-fixed": "#131b2e",
+                      "on-error": "#ffffff",
+                      "surface-tint": "#124af0",
+                      "on-primary": "#ffffff",
+                      "inverse-primary": "#b8c3ff",
+                      "surface-bright": "#f8f9ff",
+                      "inverse-surface": "#213145",
+                      "on-surface-variant": "#434656",
+                      "primary-fixed": "#dde1ff",
+                      "on-primary-container": "#efefff",
+                      "secondary": "#565e74",
+                      "surface-container-low": "#eff4ff",
+                      "tertiary-fixed-dim": "#ffb59b",
+                      "primary": "#0040e0"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "container-max": "1200px",
+                      "base": "8px",
+                      "chat-max": "800px",
+                      "gutter": "24px",
+                      "margin-mobile": "16px",
+                      "margin-desktop": "40px"
+              },
+              "fontFamily": {
+                      "data-mono": ["JetBrains Mono"],
+                      "headline-sm": ["Inter"],
+                      "body-lg": ["Inter"],
+                      "display-lg": ["Inter"],
+                      "body-sm": ["Inter"],
+                      "headline-md": ["Inter"],
+                      "label-caps": ["JetBrains Mono"]
+              },
+              "fontSize": {
+                      "data-mono": ["13px", {"lineHeight": "18px", "fontWeight": "400"}],
+                      "headline-sm": ["18px", {"lineHeight": "24px", "fontWeight": "600"}],
+                      "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                      "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}]
+              }
+            },
+          },
+        }
+    </script>
+</head>
+<body class="bg-background text-on-surface min-h-screen flex flex-col">
+    <!-- TopAppBar Header -->
+    <header class="fixed top-0 w-full bg-background/95 backdrop-blur border-b border-outline-variant z-50 flex justify-between items-center px-margin-mobile md:px-margin-desktop py-4 h-16">
+        <div class="flex items-center gap-3">
+            <img alt="UCP Assistant Logo" class="w-8 h-8 rounded-full shadow-sm" src="data:image/png;base64,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">
+            <h1 class="font-headline-md text-headline-md font-bold text-on-background">UCP Commerce Assistant</h1>
+        </div>
+        
+
+        <div class="flex items-center gap-4">
+            <button class="material-symbols-outlined text-primary hover:opacity-80 transition-opacity cursor-pointer active:scale-95">account_circle</button>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 mt-16 pb-36 pt-8 flex flex-col justify-between">
+        <!-- Interactive UI Views -->
+        <div class="chat-container px-margin-mobile w-full">
+            
+            <!-- Chat View Feed (Unified & Grounded) -->
+            <div id="chat-feed" class="space-y-8 flex flex-col">
+                <!-- Initial User Message -->
+                <div class="flex justify-end w-full slide-up">
+                    <div class="max-w-[80%] bg-surface-container-low rounded-xl px-4 py-3 border border-outline-variant/30">
+                        <p class="font-body-lg text-on-surface-variant">I want running shoes under $150</p>
+                    </div>
+                </div>
+
+                <!-- Available Offers Card -->
+                <div id="offers-card" class="flex justify-start w-full slide-up">
+                    <div class="max-w-[90%] w-full bg-surface-container-lowest border border-outline-variant rounded-lg action-card overflow-hidden">
+                        <div class="px-4 py-3 border-b border-outline-variant bg-surface-container-lowest">
+                            <h3 class="font-headline-sm text-headline-sm text-on-background">Available Offers</h3>
+                        </div>
+
+                        <!-- Product Grid/Deck -->
+                        <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-4" id="offers-grid">
+                            <!-- JS will inject the products based on layout here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dynamic container where checkout steps are injected -->
+                <div id="checkout-steps" class="space-y-8 flex flex-col"></div>
+            </div>
+
+
+        </div>
+    </main>
+
+    <!-- Fixed Composer Footer -->
+    <footer class="fixed bottom-0 w-full bg-background/80 backdrop-blur-md border-t border-outline-variant z-50 py-4 px-margin-mobile">
+        <div class="chat-container">
+            <div class="relative flex items-center bg-surface-container-lowest border border-outline rounded-xl p-1 shadow-sm focus-within:border-primary transition-colors">
+                <textarea id="chat-input" class="w-full bg-transparent border-none focus:ring-0 py-3 px-4 font-body-lg resize-none" placeholder="Message Assistant..." rows="1" onkeydown="handleTextareaKeydown(event)"></textarea>
+                <div class="flex items-center gap-2 pr-2">
+                    <button class="material-symbols-outlined text-outline hover:text-on-surface transition-colors" title="Attach file">attach_file</button>
+                    <button onclick="handleSendMessage()" class="bg-primary text-on-primary w-10 h-10 rounded-lg flex items-center justify-center active:scale-95 transition-transform" title="Send message">
+                        <span class="material-symbols-outlined">send</span>
+                    </button>
+                </div>
+            </div>
+            <p class="text-center text-outline font-label-caps text-[10px] mt-2 opacity-60">UCP Commerce Assistant uses AI to facilitate transactions. Verify details before finalizing.</p>
+        </div>
+    </footer>
+
+    <!-- App Logic Script -->
+    <script src="app.js"></script>
+</body>
+</html>

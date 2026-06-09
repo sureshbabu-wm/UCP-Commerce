@@ -1,0 +1,26 @@
+# Python
+**/__pycache__/
+**/*.py[cod]
+**/*$py.class
+**/.venv/
+**/venv/
+**/ENV/
+**/env/
+**/.pytest_cache/
+**/.ruff_cache/
+
+# Node
+**/node_modules/
+**/dist/
+**/build/
+
+# IDEs & System
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Environment variables (sensitive data)
+**/.env
+**/.env.*
+!**/.env.example
