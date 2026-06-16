@@ -1,0 +1,1978 @@
+{
+  "ucp_version": "2026-01-23",
+  "provider": "openai",
+  "endpoint_mappings": [
+    {
+      "ucp_operation": "create_checkout",
+      "status": "mapped",
+      "confidence": 0.9,
+      "client_calls": [
+        {
+          "operationId": "createCart",
+          "method": "POST",
+          "path": "/api/cart",
+          "when": null
+        }
+      ],
+      "notes": null
+    },
+    {
+      "ucp_operation": "get_checkout",
+      "status": "mapped",
+      "confidence": 0.85,
+      "client_calls": [
+        {
+          "operationId": "getCart",
+          "method": "GET",
+          "path": "/api/cart/{cartId}",
+          "when": null
+        }
+      ],
+      "notes": null
+    },
+    {
+      "ucp_operation": "update_checkout",
+      "status": "unmapped",
+      "confidence": 0.0,
+      "client_calls": [],
+      "notes": "No suitable client operation found for updating a checkout session."
+    },
+    {
+      "ucp_operation": "complete_checkout",
+      "status": "unmapped",
+      "confidence": 0.0,
+      "client_calls": [],
+      "notes": "No client operation matches the UCP complete_checkout operation."
+    },
+    {
+      "ucp_operation": "cancel_checkout",
+      "status": "unmapped",
+      "confidence": 0.0,
+      "client_calls": [],
+      "notes": "No client operation matches the UCP cancel_checkout operation."
+    }
+  ],
+  "field_mappings": [
+    {
+      "ucp_operation": "create_checkout",
+      "direction": "request",
+      "fields": [
+        {
+          "target_path": "$.line_items[*].item.id",
+          "source_path": "$.products[*].sku",
+          "transform": "rename",
+          "args": {},
+          "status": "mapped",
+          "confidence": 0.9,
+          "rationale": "sku is the product identifier"
+        },
+        {
+          "target_path": "$.line_items[*].quantity",
+          "source_path": "$.products[*].qty",
+          "transform": "copy",
+          "args": {},
+          "status": "mapped",
+          "confidence": 0.9,
+          "rationale": "qty matches the quantity of items"
+        },
+        {
+          "target_path": "$.buyer.full_name",
+          "source_path": "$.customer.name",
+          "transform": "rename",
+          "args": {},
+          "status": "mapped",
+          "confidence": 0.8,
+          "rationale": "customer.name provides the full name"
+        },
+        {
+          "target_path": "$.buyer.email",
+          "source_path": "$.customer.email_address",
+          "transform": "rename",
+          "args": {},
+          "status": "mapped",
+          "confidence": 0.9,
+          "rationale": "email_address matches buyer email"
+        },
+        {
+          "target_path": "$.currency",
+          "source_path": "$.currency_code",
+          "transform": "rename",
+          "args": {},
+          "status": "mapped",
+          "confidence": 0.9,
+          "rationale": "currency_code matches the currency field"
+        },
+        {
+          "target_path": "$.line_items[*].item.title",
+          "source_path": null,
+          "transform": "default",
+          "args": {
+            "value": ""
+          },
+          "status": "default",
+          "confidence": 0.0,
+          "rationale": "No equivalent field in client API"
+        },
+        {
+          "target_path": "$.buyer.first_name",
+          "source_path": null,
+          "transform": "default",
+          "args": {
+            "value": ""
+          },
+          "status": "default",
+          "confidence": 0.0,
+          "rationale": "No equivalent field in client API"
+        },
+        {
+          "target_path": "$.buyer.last_name",
+          "source_path": null,
+          "transform": "default",
+          "args": {
+            "value": ""
+          },
+          "status": "default",
+          "confidence": 0.0,
+          "rationale": "No equivalent field in client API"
+        },
+        {
+          "target_path": "$.buyer.phone_number",
+          "source_path": null,
+          "transform": "default",
+          "args": {
+            "value": ""
+          },
+          "status": "default",
+          "confidence": 0.0,
+          "rationale": "No equivalent field in client API"
+        },
+        {
+          "target_path": "$.payment",
+          "source_path": null,
+          "transform": "default",
+          "args": {
+            "value": {}
+          },
+          "status": "default",
+          "confidence": 0.0,
+          "rationale": "No equivalent field in client API"
+        }
+      ]
+    },
+    {
+      "ucp_operation": "create_checkout",
+      "direction": "response",
+      "fields": [
+        {
+          "target_path": "$.ucp",
+          "source_path": null,
+          "transform": "computed",
+          "args": {
+            "note": "server-authoritative (rule R1)"
+          },
+          "status": "computed",
+          "confidence": 1.0,
+          "rationale": "UCP metadata is server-generated"
+        },
+        {
+          "target_path": "$.id",
+          "source_path": "$.cart_id",
+          "transform": "rename",
+          "args": {},
+          "status": "mapped",
+          "confidence": 0.9,
+          "rationale": "cart_id serves as the unique identifier"
+        },
+        {
+          "target_path": "$.line_items[*].id",
+          "source_path": "$.products[*].line_id",
+          "transform": "rename",
+          "args": {},
+          "status": "mapped",
+          "confidence": 0.8,
+          "rationale": "line_id corresponds to line item id"
+        },
+        {
+          "target_path": "$.line_items[*].item.id",
+          "source_path": "$.products[*].sku",
+          "transform": "rename",
+          "args": {},
+          "status": "mapped",
+          "confidence": 0.9,
+          "rationale": "sku is the product identifier"
+        },
+        {
+          "target_path": "$.line_items[*].item.title",
+          "source_path": "$.products[*].name",
+          "transform": "rename",
+          "args": {},
+          "status": "mapped",
+          "confidence": 0.9,
+          "rationale": "name matches the product title"
+        },
+        {
+          "target_path": "$.line_items[*].item.price",
+          "source_path": "$.products[*].unit_price",
+          "transform": "cents_from_major",
+          "args": {
+            "scale": 100
+          },
+          "status": "mapped",
+          "confidence": 0.9,
+          "rationale": "unit_price in major units converted to cents"
+        },
+        {
+          "target_path": "$.line_items[*].quantity",
+          "source_path": "$.products[*].qty",
+          "transform": "copy",
+          "args": {},
+          "status": "mapped",
+          "confidence": 0.9,
+          "rationale": "qty matches the quantity of items"
+        },
+        {
+          "target_path": "$.currency",
+          "source_path": "$.currency_code",
+          "transform": "rename",
+          "args": {},
+          "status": "mapped",
+          "confidence": 0.9,
+          "rationale": "currency_code matches the currency field"
+        },
+        {
+          "target_path": "$.totals",
+          "source_path": null,
+          "transform": "computed",
+          "args": {
+            "note": "server-authoritative (rule R1)"
+          },
+          "status": "computed",
+          "confidence": 1.0,
+          "rationale": "totals are computed, not mapped"
+        },
+        {
+          "target_path": "$.status",
+          "source_path": "$.state",
+          "transform": "enum_map",
+          "args": {
+            "map": {
+              "open": "incomplete",
+              "locked": "requires_escalation",
+              "ordered": "completed",
+              "abandoned": "canceled"
+            }
+          },
+          "status": "mapped",
+          "confidence": 0.8,
+          "rationale": "state enum mapped to UCP status"
+        }
+      ]
+    },
+    {
+      "ucp_operation": "get_checkout",
+      "direction": "response",
+      "fields": [
+        {
+          "target_path": "$.ucp",
+          "source_path": null,
+          "transform": "computed",
+          "args": {
+            "note": "server-authoritative (rule R1)"
+          },
+          "status": "computed",
+          "confidence": 1.0,
+          "rationale": "UCP metadata is server-generated."
+        },
+        {
+          "target_path": "$.ucp.version",
+          "source_path": null,
+          "transform": "computed",
+          "args": {},
+          "status": "computed",
+          "confidence": 1.0,
+          "rationale": "UCP version is server-generated."
+        },
+        {
+          "target_path": "$.ucp.capabilities",
+          "source_path": null,
+          "transform": "computed",
+          "args": {},
+          "status": "computed",
+          "confidence": 1.0,
+          "rationale": "UCP capabilities are server-generated."
+        },
+        {
+          "target_path": "$.id",
+          "source_path": "$.cart_id",
+          "transform": "copy",
+          "args": {},
+          "status": "mapped",
+          "confidence": 0.9,
+          "rationale": "Cart ID corresponds to checkout session ID."
+        },
+        {
+          "target_path": "$.line_items",
+          "source_path": "$.products",
+          "transform": "rename",
+          "args": {},
+          "status": "mapped",
+          "confidence": 0.85,
+          "rationale": "Products in cart map to line items."
+        },
+        {
+          "target_path": "$.line_items[*].id",
+          "source_path": "$.products[*].line_id",
+          "transform": "copy",
+          "args": {},
+          "status": "mapped",
+          "confidence": 0.9,
+          "rationale": "Line ID corresponds to line item ID."
+        },
+        {
+          "target_path": "$.line_items[*].item.id",
+          "source_path": "$.products[*].sku",
+          "transform": "copy",
+          "args": {},
+          "status": "mapped",
+          "confidence": 0.9,
+          "rationale": "SKU is the product identifier."
+        },
+        {
+          "target_path": "$.line_items[*].item.title",
+          "source_path": "$.products[*].name",
+          "transform": "copy",
+          "args": {},
+          "status": "mapped",
+          "confidence": 0.9,
+          "rationale": "Product name corresponds to item title."
+        },
+        {
+          "target_path": "$.line_items[*].item.price",
+          "source_path": "$.products[*].unit_price",
+          "transform": "cents_from_major",
+          "args": {
+            "scale": 100
+          },
+          "status": "mapped",
+          "confidence": 0.9,
+          "rationale": "Unit price in dollars converted to cents."
+        },
+        {
+          "target_path": "$.line_items[*].quantity",
+          "source_path": "$.products[*].qty",
+          "transform": "copy",
+          "args": {},
+          "status": "mapped",
+          "confidence": 0.9,
+          "rationale": "Quantity maps directly."
+        },
+        {
+          "target_path": "$.status",
+          "source_path": "$.state",
+          "transform": "enum_map",
+          "args": {
+            "map": {
+              "open": "incomplete",
+              "locked": "requires_escalation",
+              "ordered": "completed",
+              "abandoned": "canceled"
+            }
+          },
+          "status": "mapped",
+          "confidence": 0.8,
+          "rationale": "Cart state maps to checkout status."
+        },
+        {
+          "target_path": "$.currency",
+          "source_path": "$.currency_code",
+          "transform": "copy",
+          "args": {},
+          "status": "mapped",
+          "confidence": 0.9,
+          "rationale": "Currency code maps directly."
+        },
+        {
+          "target_path": "$.totals",
+          "source_path": null,
+          "transform": "computed",
+          "args": {
+            "note": "server-authoritative (rule R1)"
+          },
+          "status": "computed",
+          "confidence": 1.0,
+          "rationale": "Totals are computed by the server."
+        },
+        {
+          "target_path": "$.links",
+          "source_path": null,
+          "transform": "default",
+          "args": {
+            "value": []
+          },
+          "status": "default",
+          "confidence": 0.5,
+          "rationale": "No client source for links; default to empty array."
+        }
+      ]
+    },
+    {
+      "ucp_operation": "update_checkout",
+      "direction": "request",
+      "fields": [
+        {
+          "target_path": "$.id",
+          "source_path": null,
+          "transform": "computed",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No client field matches the checkout session id."
+        },
+        {
+          "target_path": "$.line_items[*].item.id",
+          "source_path": "$.products[*].sku",
+          "transform": "rename",
+          "args": {},
+          "status": "mapped",
+          "confidence": 0.9,
+          "rationale": "SKU is used as the product identifier."
+        },
+        {
+          "target_path": "$.line_items[*].item.title",
+          "source_path": "$.products[*].name",
+          "transform": "rename",
+          "args": {},
+          "status": "mapped",
+          "confidence": 0.9,
+          "rationale": "Product name corresponds to item title."
+        },
+        {
+          "target_path": "$.line_items[*].quantity",
+          "source_path": "$.products[*].qty",
+          "transform": "copy",
+          "args": {},
+          "status": "mapped",
+          "confidence": 0.9,
+          "rationale": "Quantity directly maps to qty."
+        },
+        {
+          "target_path": "$.buyer.full_name",
+          "source_path": "$.customer.name",
+          "transform": "rename",
+          "args": {},
+          "status": "mapped",
+          "confidence": 0.9,
+          "rationale": "Customer full name maps to buyer full name."
+        },
+        {
+          "target_path": "$.buyer.email",
+          "source_path": "$.customer.email_address",
+          "transform": "rename",
+          "args": {},
+          "status": "mapped",
+          "confidence": 0.9,
+          "rationale": "Customer email maps to buyer email."
+        },
+        {
+          "target_path": "$.currency",
+          "source_path": "$.currency_code",
+          "transform": "copy",
+          "args": {},
+          "status": "mapped",
+          "confidence": 0.9,
+          "rationale": "Currency code directly maps to currency."
+        },
+        {
+          "target_path": "$.payment",
+          "source_path": null,
+          "transform": "computed",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No client field matches payment information."
+        },
+        {
+          "target_path": "$.discounts.codes",
+          "source_path": null,
+          "transform": "computed",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No client field matches discount codes."
+        },
+        {
+          "target_path": "$.fulfillment.methods[*].id",
+          "source_path": null,
+          "transform": "computed",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No client field matches fulfillment method id."
+        }
+      ]
+    },
+    {
+      "ucp_operation": "update_checkout",
+      "direction": "response",
+      "fields": [
+        {
+          "target_path": "$.ucp",
+          "source_path": null,
+          "transform": "computed",
+          "args": {
+            "note": "server-authoritative (rule R1)"
+          },
+          "status": "computed",
+          "confidence": 1.0,
+          "rationale": "UCP metadata is server-authoritative."
+        },
+        {
+          "target_path": "$.id",
+          "source_path": "$.cart_id",
+          "transform": "rename",
+          "args": {},
+          "status": "mapped",
+          "confidence": 0.9,
+          "rationale": "Cart ID maps to checkout session ID."
+        },
+        {
+          "target_path": "$.line_items[*].item.id",
+          "source_path": "$.products[*].sku",
+          "transform": "rename",
+          "args": {},
+          "status": "mapped",
+          "confidence": 0.9,
+          "rationale": "SKU is used as the product identifier."
+        },
+        {
+          "target_path": "$.line_items[*].item.title",
+          "source_path": "$.products[*].name",
+          "transform": "rename",
+          "args": {},
+          "status": "mapped",
+          "confidence": 0.9,
+          "rationale": "Product name corresponds to item title."
+        },
+        {
+          "target_path": "$.line_items[*].item.price",
+          "source_path": "$.products[*].unit_price",
+          "transform": "cents_from_major",
+          "args": {
+            "scale": 100
+          },
+          "status": "mapped",
+          "confidence": 0.9,
+          "rationale": "Unit price in dollars converted to cents."
+        },
+        {
+          "target_path": "$.line_items[*].quantity",
+          "source_path": "$.products[*].qty",
+          "transform": "copy",
+          "args": {},
+          "status": "mapped",
+          "confidence": 0.9,
+          "rationale": "Quantity directly maps to qty."
+        },
+        {
+          "target_path": "$.status",
+          "source_path": "$.state",
+          "transform": "enum_map",
+          "args": {
+            "map": {
+              "open": "incomplete",
+              "locked": "requires_escalation",
+              "ordered": "completed",
+              "abandoned": "canceled"
+            }
+          },
+          "status": "mapped",
+          "confidence": 0.9,
+          "rationale": "Cart state maps to checkout lifecycle status."
+        },
+        {
+          "target_path": "$.currency",
+          "source_path": "$.currency_code",
+          "transform": "copy",
+          "args": {},
+          "status": "mapped",
+          "confidence": 0.9,
+          "rationale": "Currency code directly maps to currency."
+        },
+        {
+          "target_path": "$.totals",
+          "source_path": null,
+          "transform": "computed",
+          "args": {
+            "note": "server-authoritative (rule R1)"
+          },
+          "status": "computed",
+          "confidence": 1.0,
+          "rationale": "Totals are server-derived."
+        }
+      ]
+    },
+    {
+      "ucp_operation": "complete_checkout",
+      "direction": "request",
+      "fields": [
+        {
+          "target_path": "$.payment",
+          "source_path": null,
+          "transform": "default",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No matching client field for payment object."
+        },
+        {
+          "target_path": "$.payment.instruments",
+          "source_path": null,
+          "transform": "default",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No matching client field for payment instruments."
+        },
+        {
+          "target_path": "$.payment.handlers",
+          "source_path": null,
+          "transform": "default",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No matching client field for payment handlers."
+        },
+        {
+          "target_path": "$.risk_signals",
+          "source_path": null,
+          "transform": "default",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No matching client field for risk signals."
+        }
+      ]
+    },
+    {
+      "ucp_operation": "complete_checkout",
+      "direction": "response",
+      "fields": [
+        {
+          "target_path": "$.ucp",
+          "source_path": null,
+          "transform": "computed",
+          "args": {
+            "note": "server-authoritative (rule R1)"
+          },
+          "status": "computed",
+          "confidence": 1.0,
+          "rationale": "UCP metadata is server-authoritative."
+        },
+        {
+          "target_path": "$.ucp.version",
+          "source_path": null,
+          "transform": "computed",
+          "args": {
+            "note": "UCP version is server-generated."
+          },
+          "status": "computed",
+          "confidence": 1.0,
+          "rationale": "UCP version is server-authoritative."
+        },
+        {
+          "target_path": "$.ucp.capabilities",
+          "source_path": null,
+          "transform": "computed",
+          "args": {
+            "note": "UCP capabilities are server-generated."
+          },
+          "status": "computed",
+          "confidence": 1.0,
+          "rationale": "UCP capabilities are server-authoritative."
+        },
+        {
+          "target_path": "$.id",
+          "source_path": null,
+          "transform": "computed",
+          "args": {
+            "note": "no client id; gateway-generated (rule R1)"
+          },
+          "status": "computed",
+          "confidence": 1.0,
+          "rationale": "Checkout session ID is server-authoritative."
+        },
+        {
+          "target_path": "$.line_items",
+          "source_path": null,
+          "transform": "default",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No matching client field for line items."
+        },
+        {
+          "target_path": "$.line_items[*].id",
+          "source_path": null,
+          "transform": "computed",
+          "args": {
+            "note": "no client id; gateway-generated (rule R1)"
+          },
+          "status": "computed",
+          "confidence": 1.0,
+          "rationale": "Line item ID is server-authoritative."
+        },
+        {
+          "target_path": "$.line_items[*].item",
+          "source_path": null,
+          "transform": "default",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No matching client field for item object."
+        },
+        {
+          "target_path": "$.line_items[*].item.id",
+          "source_path": null,
+          "transform": "default",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No matching client field for item ID."
+        },
+        {
+          "target_path": "$.line_items[*].item.title",
+          "source_path": null,
+          "transform": "default",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No matching client field for item title."
+        },
+        {
+          "target_path": "$.line_items[*].item.price",
+          "source_path": null,
+          "transform": "default",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No matching client field for item price."
+        },
+        {
+          "target_path": "$.line_items[*].item.image_url",
+          "source_path": null,
+          "transform": "default",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No matching client field for item image URL."
+        },
+        {
+          "target_path": "$.line_items[*].quantity",
+          "source_path": null,
+          "transform": "default",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No matching client field for item quantity."
+        },
+        {
+          "target_path": "$.line_items[*].totals",
+          "source_path": null,
+          "transform": "computed",
+          "args": {
+            "note": "server-authoritative (rule R1)"
+          },
+          "status": "computed",
+          "confidence": 0.0,
+          "rationale": "No matching client field for line item totals."
+        },
+        {
+          "target_path": "$.line_items[*].totals[*].type",
+          "source_path": null,
+          "transform": "default",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No matching client field for line item total type."
+        },
+        {
+          "target_path": "$.line_items[*].totals[*].display_text",
+          "source_path": null,
+          "transform": "default",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No matching client field for line item total display text."
+        },
+        {
+          "target_path": "$.line_items[*].totals[*].amount",
+          "source_path": null,
+          "transform": "default",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No matching client field for line item total amount."
+        },
+        {
+          "target_path": "$.line_items[*].parent_id",
+          "source_path": null,
+          "transform": "default",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No matching client field for line item parent ID."
+        },
+        {
+          "target_path": "$.buyer",
+          "source_path": null,
+          "transform": "default",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No matching client field for buyer object."
+        },
+        {
+          "target_path": "$.buyer.first_name",
+          "source_path": null,
+          "transform": "default",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No matching client field for buyer first name."
+        },
+        {
+          "target_path": "$.buyer.last_name",
+          "source_path": null,
+          "transform": "default",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No matching client field for buyer last name."
+        },
+        {
+          "target_path": "$.buyer.full_name",
+          "source_path": null,
+          "transform": "default",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No matching client field for buyer full name."
+        },
+        {
+          "target_path": "$.buyer.email",
+          "source_path": null,
+          "transform": "default",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No matching client field for buyer email."
+        },
+        {
+          "target_path": "$.buyer.phone_number",
+          "source_path": null,
+          "transform": "default",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No matching client field for buyer phone number."
+        },
+        {
+          "target_path": "$.buyer.consent",
+          "source_path": null,
+          "transform": "default",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No matching client field for buyer consent."
+        },
+        {
+          "target_path": "$.status",
+          "source_path": null,
+          "transform": "default",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No matching client field for checkout status."
+        },
+        {
+          "target_path": "$.currency",
+          "source_path": null,
+          "transform": "default",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No matching client field for currency."
+        },
+        {
+          "target_path": "$.totals",
+          "source_path": null,
+          "transform": "computed",
+          "args": {
+            "note": "server-authoritative (rule R1)"
+          },
+          "status": "computed",
+          "confidence": 1.0,
+          "rationale": "Cart totals are server-authoritative."
+        },
+        {
+          "target_path": "$.totals[*].type",
+          "source_path": null,
+          "transform": "default",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No matching client field for total type."
+        },
+        {
+          "target_path": "$.totals[*].display_text",
+          "source_path": null,
+          "transform": "default",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No matching client field for total display text."
+        },
+        {
+          "target_path": "$.totals[*].amount",
+          "source_path": null,
+          "transform": "default",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No matching client field for total amount."
+        },
+        {
+          "target_path": "$.messages",
+          "source_path": null,
+          "transform": "default",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No matching client field for messages."
+        },
+        {
+          "target_path": "$.links",
+          "source_path": null,
+          "transform": "default",
+          "args": {
+            "value": []
+          },
+          "status": "default",
+          "confidence": 0.5,
+          "rationale": "Default to empty array for links."
+        },
+        {
+          "target_path": "$.links[*].type",
+          "source_path": null,
+          "transform": "default",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No matching client field for link type."
+        },
+        {
+          "target_path": "$.links[*].url",
+          "source_path": null,
+          "transform": "default",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No matching client field for link URL."
+        },
+        {
+          "target_path": "$.expires_at",
+          "source_path": null,
+          "transform": "default",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No matching client field for expiry timestamp."
+        },
+        {
+          "target_path": "$.continue_url",
+          "source_path": null,
+          "transform": "default",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No matching client field for continue URL."
+        },
+        {
+          "target_path": "$.payment",
+          "source_path": null,
+          "transform": "default",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No matching client field for payment object."
+        },
+        {
+          "target_path": "$.order",
+          "source_path": null,
+          "transform": "default",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No matching client field for order object."
+        },
+        {
+          "target_path": "$.order.id",
+          "source_path": null,
+          "transform": "computed",
+          "args": {
+            "note": "server-authoritative (rule R1)"
+          },
+          "status": "computed",
+          "confidence": 1.0,
+          "rationale": "Order ID is server-authoritative."
+        },
+        {
+          "target_path": "$.order.permalink_url",
+          "source_path": null,
+          "transform": "default",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No matching client field for order permalink URL."
+        },
+        {
+          "target_path": "$.discounts",
+          "source_path": null,
+          "transform": "default",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No matching client field for discounts."
+        },
+        {
+          "target_path": "$.discounts.codes",
+          "source_path": null,
+          "transform": "default",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No matching client field for discount codes."
+        },
+        {
+          "target_path": "$.discounts.applied",
+          "source_path": null,
+          "transform": "default",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No matching client field for applied discounts."
+        },
+        {
+          "target_path": "$.discounts.applied[*].code",
+          "source_path": null,
+          "transform": "default",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No matching client field for applied discount code."
+        },
+        {
+          "target_path": "$.discounts.applied[*].title",
+          "source_path": null,
+          "transform": "default",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No matching client field for applied discount title."
+        },
+        {
+          "target_path": "$.discounts.applied[*].amount",
+          "source_path": null,
+          "transform": "default",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No matching client field for applied discount amount."
+        },
+        {
+          "target_path": "$.fulfillment",
+          "source_path": null,
+          "transform": "default",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No matching client field for fulfillment."
+        },
+        {
+          "target_path": "$.fulfillment.methods",
+          "source_path": null,
+          "transform": "default",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No matching client field for fulfillment methods."
+        },
+        {
+          "target_path": "$.fulfillment.methods[*].id",
+          "source_path": null,
+          "transform": "default",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No matching client field for fulfillment method ID."
+        },
+        {
+          "target_path": "$.fulfillment.methods[*].type",
+          "source_path": null,
+          "transform": "default",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No matching client field for fulfillment method type."
+        },
+        {
+          "target_path": "$.fulfillment.methods[*].selected_destination_id",
+          "source_path": null,
+          "transform": "default",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No matching client field for selected destination ID."
+        },
+        {
+          "target_path": "$.fulfillment_address",
+          "source_path": null,
+          "transform": "default",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No matching client field for fulfillment address."
+        },
+        {
+          "target_path": "$.fulfillment_address.street_address",
+          "source_path": null,
+          "transform": "default",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No matching client field for street address."
+        },
+        {
+          "target_path": "$.fulfillment_address.address_locality",
+          "source_path": null,
+          "transform": "default",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No matching client field for address locality."
+        },
+        {
+          "target_path": "$.fulfillment_address.address_region",
+          "source_path": null,
+          "transform": "default",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No matching client field for address region."
+        },
+        {
+          "target_path": "$.fulfillment_address.postal_code",
+          "source_path": null,
+          "transform": "default",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No matching client field for postal code."
+        },
+        {
+          "target_path": "$.fulfillment_address.address_country",
+          "source_path": null,
+          "transform": "default",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No matching client field for address country."
+        }
+      ]
+    },
+    {
+      "ucp_operation": "cancel_checkout",
+      "direction": "response",
+      "fields": [
+        {
+          "target_path": "$.ucp",
+          "source_path": null,
+          "transform": "computed",
+          "args": {
+            "note": "server-authoritative (rule R1)"
+          },
+          "status": "computed",
+          "confidence": 1.0,
+          "rationale": "UCP metadata is server-authoritative."
+        },
+        {
+          "target_path": "$.ucp.version",
+          "source_path": null,
+          "transform": "computed",
+          "args": {
+            "note": "UCP version is server-generated."
+          },
+          "status": "computed",
+          "confidence": 1.0,
+          "rationale": "UCP version is server-authoritative."
+        },
+        {
+          "target_path": "$.ucp.capabilities",
+          "source_path": null,
+          "transform": "computed",
+          "args": {
+            "note": "UCP capabilities are server-generated."
+          },
+          "status": "computed",
+          "confidence": 1.0,
+          "rationale": "UCP capabilities are server-authoritative."
+        },
+        {
+          "target_path": "$.id",
+          "source_path": null,
+          "transform": "computed",
+          "args": {
+            "note": "no client id; gateway-generated (rule R1)"
+          },
+          "status": "computed",
+          "confidence": 1.0,
+          "rationale": "Checkout session ID is server-authoritative."
+        },
+        {
+          "target_path": "$.line_items",
+          "source_path": null,
+          "transform": "reshape",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No client source for line items."
+        },
+        {
+          "target_path": "$.line_items[*].id",
+          "source_path": null,
+          "transform": "computed",
+          "args": {
+            "note": "no client id; gateway-generated (rule R1)"
+          },
+          "status": "computed",
+          "confidence": 0.0,
+          "rationale": "No client source for line item ID."
+        },
+        {
+          "target_path": "$.line_items[*].item",
+          "source_path": null,
+          "transform": "reshape",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No client source for line item object."
+        },
+        {
+          "target_path": "$.line_items[*].item.id",
+          "source_path": null,
+          "transform": "reshape",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No client source for merchant product identifier."
+        },
+        {
+          "target_path": "$.line_items[*].item.title",
+          "source_path": null,
+          "transform": "reshape",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No client source for item title."
+        },
+        {
+          "target_path": "$.line_items[*].item.price",
+          "source_path": null,
+          "transform": "reshape",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No client source for item price."
+        },
+        {
+          "target_path": "$.line_items[*].item.image_url",
+          "source_path": null,
+          "transform": "reshape",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No client source for item image URL."
+        },
+        {
+          "target_path": "$.line_items[*].quantity",
+          "source_path": null,
+          "transform": "reshape",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No client source for item quantity."
+        },
+        {
+          "target_path": "$.line_items[*].totals",
+          "source_path": null,
+          "transform": "computed",
+          "args": {
+            "note": "server-authoritative (rule R1)"
+          },
+          "status": "computed",
+          "confidence": 0.0,
+          "rationale": "No client source for line item totals."
+        },
+        {
+          "target_path": "$.line_items[*].totals[*].type",
+          "source_path": null,
+          "transform": "reshape",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No client source for line item total type."
+        },
+        {
+          "target_path": "$.line_items[*].totals[*].display_text",
+          "source_path": null,
+          "transform": "reshape",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No client source for line item total display text."
+        },
+        {
+          "target_path": "$.line_items[*].totals[*].amount",
+          "source_path": null,
+          "transform": "reshape",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No client source for line item total amount."
+        },
+        {
+          "target_path": "$.line_items[*].parent_id",
+          "source_path": null,
+          "transform": "reshape",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No client source for line item parent ID."
+        },
+        {
+          "target_path": "$.buyer",
+          "source_path": null,
+          "transform": "reshape",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No client source for buyer information."
+        },
+        {
+          "target_path": "$.buyer.first_name",
+          "source_path": null,
+          "transform": "reshape",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No client source for buyer first name."
+        },
+        {
+          "target_path": "$.buyer.last_name",
+          "source_path": null,
+          "transform": "reshape",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No client source for buyer last name."
+        },
+        {
+          "target_path": "$.buyer.full_name",
+          "source_path": null,
+          "transform": "reshape",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No client source for buyer full name."
+        },
+        {
+          "target_path": "$.buyer.email",
+          "source_path": null,
+          "transform": "reshape",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No client source for buyer email."
+        },
+        {
+          "target_path": "$.buyer.phone_number",
+          "source_path": null,
+          "transform": "reshape",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No client source for buyer phone number."
+        },
+        {
+          "target_path": "$.buyer.consent",
+          "source_path": null,
+          "transform": "reshape",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No client source for buyer consent."
+        },
+        {
+          "target_path": "$.status",
+          "source_path": null,
+          "transform": "reshape",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No client source for checkout status."
+        },
+        {
+          "target_path": "$.currency",
+          "source_path": null,
+          "transform": "reshape",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No client source for currency code."
+        },
+        {
+          "target_path": "$.totals",
+          "source_path": null,
+          "transform": "computed",
+          "args": {
+            "note": "server-authoritative (rule R1)"
+          },
+          "status": "computed",
+          "confidence": 1.0,
+          "rationale": "Cart totals are server-authoritative."
+        },
+        {
+          "target_path": "$.totals[*].type",
+          "source_path": null,
+          "transform": "reshape",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No client source for total type."
+        },
+        {
+          "target_path": "$.totals[*].display_text",
+          "source_path": null,
+          "transform": "reshape",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No client source for total display text."
+        },
+        {
+          "target_path": "$.totals[*].amount",
+          "source_path": null,
+          "transform": "reshape",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No client source for total amount."
+        },
+        {
+          "target_path": "$.messages",
+          "source_path": null,
+          "transform": "reshape",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No client source for messages."
+        },
+        {
+          "target_path": "$.links",
+          "source_path": null,
+          "transform": "default",
+          "args": {
+            "value": []
+          },
+          "status": "default",
+          "confidence": 0.5,
+          "rationale": "Default to empty links array."
+        },
+        {
+          "target_path": "$.links[*].type",
+          "source_path": null,
+          "transform": "reshape",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No client source for link type."
+        },
+        {
+          "target_path": "$.links[*].url",
+          "source_path": null,
+          "transform": "reshape",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No client source for link URL."
+        },
+        {
+          "target_path": "$.expires_at",
+          "source_path": null,
+          "transform": "reshape",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No client source for expiry timestamp."
+        },
+        {
+          "target_path": "$.continue_url",
+          "source_path": null,
+          "transform": "reshape",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No client source for continue URL."
+        },
+        {
+          "target_path": "$.payment",
+          "source_path": null,
+          "transform": "reshape",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No client source for payment information."
+        },
+        {
+          "target_path": "$.order",
+          "source_path": null,
+          "transform": "reshape",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No client source for order information."
+        },
+        {
+          "target_path": "$.order.id",
+          "source_path": null,
+          "transform": "computed",
+          "args": {
+            "note": "server-authoritative (rule R1)"
+          },
+          "status": "computed",
+          "confidence": 0.0,
+          "rationale": "No client source for order ID."
+        },
+        {
+          "target_path": "$.order.permalink_url",
+          "source_path": null,
+          "transform": "reshape",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No client source for order permalink URL."
+        },
+        {
+          "target_path": "$.discounts",
+          "source_path": null,
+          "transform": "reshape",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No client source for discounts."
+        },
+        {
+          "target_path": "$.discounts.codes",
+          "source_path": null,
+          "transform": "reshape",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No client source for discount codes."
+        },
+        {
+          "target_path": "$.discounts.applied",
+          "source_path": null,
+          "transform": "reshape",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No client source for applied discounts."
+        },
+        {
+          "target_path": "$.discounts.applied[*].code",
+          "source_path": null,
+          "transform": "reshape",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No client source for applied discount code."
+        },
+        {
+          "target_path": "$.discounts.applied[*].title",
+          "source_path": null,
+          "transform": "reshape",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No client source for applied discount title."
+        },
+        {
+          "target_path": "$.discounts.applied[*].amount",
+          "source_path": null,
+          "transform": "reshape",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No client source for applied discount amount."
+        },
+        {
+          "target_path": "$.fulfillment",
+          "source_path": null,
+          "transform": "reshape",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No client source for fulfillment information."
+        },
+        {
+          "target_path": "$.fulfillment.methods",
+          "source_path": null,
+          "transform": "reshape",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No client source for fulfillment methods."
+        },
+        {
+          "target_path": "$.fulfillment.methods[*].id",
+          "source_path": null,
+          "transform": "reshape",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No client source for fulfillment method ID."
+        },
+        {
+          "target_path": "$.fulfillment.methods[*].type",
+          "source_path": null,
+          "transform": "reshape",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No client source for fulfillment method type."
+        },
+        {
+          "target_path": "$.fulfillment.methods[*].selected_destination_id",
+          "source_path": null,
+          "transform": "reshape",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No client source for selected destination ID."
+        },
+        {
+          "target_path": "$.fulfillment_address",
+          "source_path": null,
+          "transform": "reshape",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No client source for fulfillment address."
+        },
+        {
+          "target_path": "$.fulfillment_address.street_address",
+          "source_path": null,
+          "transform": "reshape",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No client source for street address."
+        },
+        {
+          "target_path": "$.fulfillment_address.address_locality",
+          "source_path": null,
+          "transform": "reshape",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No client source for address locality."
+        },
+        {
+          "target_path": "$.fulfillment_address.address_region",
+          "source_path": null,
+          "transform": "reshape",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No client source for address region."
+        },
+        {
+          "target_path": "$.fulfillment_address.postal_code",
+          "source_path": null,
+          "transform": "reshape",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No client source for postal code."
+        },
+        {
+          "target_path": "$.fulfillment_address.address_country",
+          "source_path": null,
+          "transform": "reshape",
+          "args": {},
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No client source for address country."
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "required_total": 100,
+    "mapped": 30,
+    "defaulted": 4,
+    "computed": 32,
+    "unmapped": 34
+  },
+  "review_queue": [
+    {
+      "ucp_operation": "create_checkout",
+      "direction": null,
+      "target_path": "$.line_items[*].totals[*].type",
+      "reason": "required UCP field has no mapping (gap)",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "create_checkout",
+      "direction": null,
+      "target_path": "$.links",
+      "reason": "required UCP field has no mapping (gap)",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "create_checkout",
+      "direction": null,
+      "target_path": "$.line_items[*].totals[*].amount",
+      "reason": "required UCP field has no mapping (gap)",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "create_checkout",
+      "direction": null,
+      "target_path": "$.line_items[*].totals",
+      "reason": "required UCP field has no mapping (gap)",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "update_checkout",
+      "direction": null,
+      "target_path": "$.line_items[*].totals[*].type",
+      "reason": "required UCP field has no mapping (gap)",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "update_checkout",
+      "direction": null,
+      "target_path": "$.links",
+      "reason": "required UCP field has no mapping (gap)",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "update_checkout",
+      "direction": null,
+      "target_path": "$.line_items[*].id",
+      "reason": "required UCP field has no mapping (gap)",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "update_checkout",
+      "direction": null,
+      "target_path": "$.line_items[*].totals[*].amount",
+      "reason": "required UCP field has no mapping (gap)",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "update_checkout",
+      "direction": null,
+      "target_path": "$.id",
+      "reason": "required UCP field has no mapping (gap)",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "update_checkout",
+      "direction": null,
+      "target_path": "$.line_items[*].totals",
+      "reason": "required UCP field has no mapping (gap)",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "complete_checkout",
+      "direction": null,
+      "target_path": "$.line_items[*].totals[*].type",
+      "reason": "required UCP field has no mapping (gap)",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "complete_checkout",
+      "direction": null,
+      "target_path": "$.totals[*].amount",
+      "reason": "required UCP field has no mapping (gap)",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "complete_checkout",
+      "direction": null,
+      "target_path": "$.line_items[*].item",
+      "reason": "required UCP field has no mapping (gap)",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "complete_checkout",
+      "direction": null,
+      "target_path": "$.currency",
+      "reason": "required UCP field has no mapping (gap)",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "complete_checkout",
+      "direction": null,
+      "target_path": "$.status",
+      "reason": "required UCP field has no mapping (gap)",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "complete_checkout",
+      "direction": null,
+      "target_path": "$.totals[*].type",
+      "reason": "required UCP field has no mapping (gap)",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "complete_checkout",
+      "direction": null,
+      "target_path": "$.line_items[*].item.id",
+      "reason": "required UCP field has no mapping (gap)",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "complete_checkout",
+      "direction": null,
+      "target_path": "$.line_items",
+      "reason": "required UCP field has no mapping (gap)",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "complete_checkout",
+      "direction": null,
+      "target_path": "$.line_items[*].item.price",
+      "reason": "required UCP field has no mapping (gap)",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "complete_checkout",
+      "direction": null,
+      "target_path": "$.line_items[*].totals[*].amount",
+      "reason": "required UCP field has no mapping (gap)",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "complete_checkout",
+      "direction": null,
+      "target_path": "$.line_items[*].quantity",
+      "reason": "required UCP field has no mapping (gap)",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "complete_checkout",
+      "direction": null,
+      "target_path": "$.line_items[*].item.title",
+      "reason": "required UCP field has no mapping (gap)",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "cancel_checkout",
+      "direction": null,
+      "target_path": "$.line_items[*].totals[*].type",
+      "reason": "required UCP field has no mapping (gap)",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "cancel_checkout",
+      "direction": null,
+      "target_path": "$.totals[*].amount",
+      "reason": "required UCP field has no mapping (gap)",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "cancel_checkout",
+      "direction": null,
+      "target_path": "$.line_items[*].item",
+      "reason": "required UCP field has no mapping (gap)",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "cancel_checkout",
+      "direction": null,
+      "target_path": "$.currency",
+      "reason": "required UCP field has no mapping (gap)",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "cancel_checkout",
+      "direction": null,
+      "target_path": "$.status",
+      "reason": "required UCP field has no mapping (gap)",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "cancel_checkout",
+      "direction": null,
+      "target_path": "$.totals[*].type",
+      "reason": "required UCP field has no mapping (gap)",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "cancel_checkout",
+      "direction": null,
+      "target_path": "$.line_items[*].item.id",
+      "reason": "required UCP field has no mapping (gap)",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "cancel_checkout",
+      "direction": null,
+      "target_path": "$.line_items",
+      "reason": "required UCP field has no mapping (gap)",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "cancel_checkout",
+      "direction": null,
+      "target_path": "$.line_items[*].item.price",
+      "reason": "required UCP field has no mapping (gap)",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "cancel_checkout",
+      "direction": null,
+      "target_path": "$.line_items[*].totals[*].amount",
+      "reason": "required UCP field has no mapping (gap)",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "cancel_checkout",
+      "direction": null,
+      "target_path": "$.line_items[*].quantity",
+      "reason": "required UCP field has no mapping (gap)",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "cancel_checkout",
+      "direction": null,
+      "target_path": "$.line_items[*].item.title",
+      "reason": "required UCP field has no mapping (gap)",
+      "confidence": null
+    }
+  ]
+}

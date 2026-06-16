@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://wavemaker.dev/ucp-mapper/mapping_output.schema.json",
+  "title": "UCP → Client API Mapping",
+  "type": "object",
+  "required": ["ucp_version", "provider", "endpoint_mappings", "field_mappings", "coverage"],
+  "additionalProperties": false,
+  "properties": {
+    "ucp_version": { "type": "string", "description": "UCP spec version the mapping targets, e.g. 2026-01-23" },
+    "provider": { "type": "string", "enum": ["openai", "claude", "gemini"] },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "endpoint_mappings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["ucp_operation", "status", "client_calls"],
+        "additionalProperties": false,
+        "properties": {
+          "ucp_operation": { "type": "string", "description": "UCP operationId, e.g. create_checkout" },
+          "status": { "type": "string", "enum": ["mapped", "partial", "unmapped"] },
+          "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+          "client_calls": {
+            "type": "array",
+            "description": "Ordered client operations that realize this UCP operation (1..n).",
+            "items": {
+              "type": "object",
+              "required": ["method", "path"],
+              "additionalProperties": false,
+              "properties": {
+                "operationId": { "type": ["string", "null"] },
+                "method": { "type": "string", "enum": ["GET", "POST", "PUT", "PATCH", "DELETE"] },
+                "path": { "type": "string" },
+                "when": { "type": ["string", "null"], "description": "Condition expression, null = always" }
+              }
+            }
+          },
+          "notes": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "field_mappings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["ucp_operation", "direction", "fields"],
+        "additionalProperties": false,
+        "properties": {
+          "ucp_operation": { "type": "string" },
+          "direction": { "type": "string", "enum": ["request", "response"] },
+          "fields": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["target_path", "transform", "status"],
+              "additionalProperties": false,
+              "properties": {
+                "target_path": { "type": "string", "description": "JSONPath on the UCP side" },
+                "source_path": { "type": ["string", "null"], "description": "JSONPath on the client side; null when computed/default/unmapped" },
+                "transform": {
+                  "type": "string",
+                  "enum": ["copy", "rename", "const", "default", "cents_from_major", "major_from_cents", "date_rfc3339", "enum_map", "concat", "split", "reshape", "jsonpath_pick", "computed"]
+                },
+                "args": { "type": "object" },
+                "status": { "type": "string", "enum": ["mapped", "computed", "default", "unmapped"] },
+                "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+                "rationale": { "type": ["string", "null"] }
+              }
+            }
+          }
+        }
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "required": ["required_total", "mapped", "defaulted", "computed", "unmapped"],
+      "additionalProperties": false,
+      "properties": {
+        "required_total": { "type": "integer", "minimum": 0 },
+        "mapped": { "type": "integer", "minimum": 0 },
+        "defaulted": { "type": "integer", "minimum": 0 },
+        "computed": { "type": "integer", "minimum": 0 },
+        "unmapped": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "review_queue": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["ucp_operation", "target_path", "reason"],
+        "additionalProperties": false,
+        "properties": {
+          "ucp_operation": { "type": "string" },
+          "direction": { "type": ["string", "null"], "enum": ["request", "response", null] },
+          "target_path": { "type": "string" },
+          "reason": { "type": "string" },
+          "confidence": { "type": ["number", "null"], "minimum": 0, "maximum": 1 }
+        }
+      }
+    }
+  }
+}

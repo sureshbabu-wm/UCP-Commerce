@@ -1,0 +1,79 @@
+{
+  "openapi": "3.0.0",
+  "info": { "title": "Acme Shop API", "version": "1.0.0", "description": "Acme's existing storefront API (non-UCP)." },
+  "paths": {
+    "/api/cart": {
+      "post": {
+        "operationId": "createCart",
+        "summary": "Create a shopping cart with products",
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/NewCart" } } }
+        },
+        "responses": {
+          "200": { "description": "Cart created", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Cart" } } } }
+        }
+      }
+    },
+    "/api/cart/{cartId}": {
+      "get": {
+        "operationId": "getCart",
+        "summary": "Fetch a cart",
+        "responses": { "200": { "description": "OK", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Cart" } } } } }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "NewCart": {
+        "type": "object",
+        "required": ["products"],
+        "properties": {
+          "products": {
+            "type": "array",
+            "description": "Products to add to the cart.",
+            "items": {
+              "type": "object",
+              "required": ["sku", "qty"],
+              "properties": {
+                "sku": { "type": "string", "description": "Stock keeping unit / product code." },
+                "qty": { "type": "integer", "description": "How many units." }
+              }
+            }
+          },
+          "customer": {
+            "type": "object",
+            "description": "The shopper.",
+            "properties": {
+              "name": { "type": "string", "description": "Customer full name." },
+              "email_address": { "type": "string", "description": "Customer email." }
+            }
+          },
+          "currency_code": { "type": "string", "description": "Three-letter currency code." }
+        }
+      },
+      "Cart": {
+        "type": "object",
+        "properties": {
+          "cart_id": { "type": "string", "description": "Unique cart identifier." },
+          "state": { "type": "string", "description": "Cart state.", "enum": ["open", "locked", "ordered", "abandoned"] },
+          "currency_code": { "type": "string" },
+          "products": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "line_id": { "type": "string" },
+                "sku": { "type": "string" },
+                "name": { "type": "string", "description": "Product name." },
+                "unit_price": { "type": "number", "description": "Unit price in dollars (major units)." },
+                "qty": { "type": "integer" }
+              }
+            }
+          },
+          "grand_total": { "type": "number", "description": "Order grand total in dollars." }
+        }
+      }
+    }
+  }
+}

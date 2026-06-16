@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Universal Commerce Protocol (UCP) - Configuration & Discovery Guide</title>
+  <meta name="description" content="A comprehensive technical guide to UCP discovery profiles (.well-known/ucp), A2A agent cards (agent_card.json), transport types, schema versioning, and merchant configuration.">
+  
+  <!-- Modern Typography from Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <style>
+    /* CSS Custom Properties for Theme Tokens */
+    :root {
+      /* Dark Theme Variables (Default) */
+      --bg-gradient-start: #060913;
+      --bg-gradient-end: #0c1020;
+      --bg-color: #080b16;
+      --card-bg: rgba(15, 23, 42, 0.65);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --card-shadow: rgba(0, 0, 0, 0.4);
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      
+      /* Harmonious Palette Accents */
+      --primary: #6366f1; /* Indigo */
+      --primary-glow: rgba(99, 102, 241, 0.15);
+      --primary-hover: #4f46e5;
+      
+      --secondary: #0ea5e9; /* Sky Blue */
+      --secondary-glow: rgba(14, 165, 233, 0.15);
+      
+      --accent: #10b981; /* Emerald Green */
+      --accent-glow: rgba(16, 185, 129, 0.15);
+      
+      --warning: #f59e0b; /* Amber */
+      --warning-glow: rgba(245, 158, 11, 0.15);
+      
+      --danger: #ef4444; /* Rose Red */
+      --danger-glow: rgba(239, 68, 68, 0.15);
+      
+      --code-bg: #0b0f19;
+      --code-border: rgba(255, 255, 255, 0.05);
+      --scrollbar-thumb: #334155;
+      --scrollbar-track: #0f172a;
+      
+      --font-title: 'Outfit', sans-serif;
+      --font-body: 'Inter', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      
+      --sidebar-width: 280px;
+      --transition-speed: 0.3s;
+    }
+
+    /* Light Theme Override */
+    body.light-theme {
+      --bg-gradient-start: #f8fafc;
+      --bg-gradient-end: #f1f5f9;
+      --bg-color: #f8fafc;
+      --card-bg: rgba(255, 255, 255, 0.85);
+      --card-border: rgba(0, 0, 0, 0.08);
+      --card-shadow: rgba(148, 163, 184, 0.15);
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #94a3b8;
+      
+      --primary: #4f46e5;
+      --primary-glow: rgba(79, 70, 229, 0.08);
+      --primary-hover: #4338ca;
+      
+      --secondary: #0284c7;
+      --secondary-glow: rgba(2, 132, 199, 0.08);
+      
+      --accent: #059669;
+      --accent-glow: rgba(5, 150, 105, 0.08);
+      
+      --code-bg: #f1f5f9;
+      --code-border: rgba(0, 0, 0, 0.06);
+      --scrollbar-thumb: #cbd5e1;
+      --scrollbar-track: #f1f5f9;
+    }
+
+    /* Core Reset & Styles */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
+      background-attachment: fixed;
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      transition: background var(--transition-speed) ease, color var(--transition-speed) ease;
+    }
+
+    a {
+      color: var(--secondary);
+      text-decoration: none;
+      transition: color var(--transition-speed) ease;
+    }
+
+    a:hover {
+      color: var(--primary);
+      text-decoration: underline;
+    }
+
+    /* App Shell Layout */
+    .app-container {
+      display: flex;
+      min-height: 100vh;
+      position: relative;
+    }
+
+    /* Navigation Sidebar */
+    .sidebar {
+      width: var(--sidebar-width);
+      background: rgba(15, 23, 42, 0.4);
+      backdrop-filter: blur(10px);
+      border-right: 1px solid var(--card-border);
+      position: fixed;
+      height: 100vh;
+      overflow-y: auto;
+      padding: 2.5rem 1.5rem;
+      z-index: 100;
+      transition: background var(--transition-speed) ease, border var(--transition-speed) ease;
+    }
+
+    body.light-theme .sidebar {
+      background: rgba(255, 255, 255, 0.6);
+    }
+
+    .brand-section {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 3rem;
+    }
+
+    .brand-logo {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      color: white;
+      font-family: var(--font-title);
+      box-shadow: 0 4px 12px var(--primary-glow);
+    }
+
+    .brand-title {
+      font-family: var(--font-title);
+      font-weight: 700;
+      font-size: 1.25rem;
+      letter-spacing: -0.5px;
+      background: linear-gradient(to right, var(--text-primary), var(--text-secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .nav-list {
+      list-style: none;
+    }
+
+    .nav-item {
+      margin-bottom: 0.5rem;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+
+    .nav-link:hover {
+      color: var(--text-primary);
+      background: var(--primary-glow);
+      text-decoration: none;
+    }
+
+    .nav-link.active {
+      color: white;
+      background: var(--primary);
+      box-shadow: 0 4px 12px var(--primary-glow);
+    }
+
+    /* Main Content Area */
+    .main-content {
+      flex: 1;
+      margin-left: var(--sidebar-width);
+      padding: 3rem 4rem;
+      max-width: 1200px;
+    }
+
+    header {
+      margin-bottom: 4rem;
+      position: relative;
+    }
+
+    .theme-toggle-container {
+      position: absolute;
+      top: 0;
+      right: 0;
+      z-index: 10;
+    }
+
+    #theme-toggle-btn {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-primary);
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      box-shadow: 0 4px 12px var(--card-shadow);
+      transition: all var(--transition-speed) ease;
+    }
+
+    #theme-toggle-btn:hover {
+      transform: translateY(-2px);
+      border-color: var(--primary);
+    }
+
+    h1 {
+      font-family: var(--font-title);
+      font-size: 3rem;
+      font-weight: 800;
+      letter-spacing: -1.5px;
+      line-height: 1.15;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, var(--text-primary) 30%, var(--primary) 70%, var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      font-size: 1.15rem;
+      color: var(--text-secondary);
+      max-width: 800px;
+      font-weight: 400;
+    }
+
+    /* Section Styles */
+    section {
+      margin-bottom: 5rem;
+      scroll-margin-top: 3rem;
+    }
+
+    h2 {
+      font-family: var(--font-title);
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -0.75px;
+      margin-bottom: 1.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      position: relative;
+    }
+
+    h2::after {
+      content: '';
+      position: absolute;
+      bottom: -6px;
+      left: 0;
+      width: 40px;
+      height: 3px;
+      background: var(--primary);
+      border-radius: 2px;
+    }
+
+    h3 {
+      font-family: var(--font-title);
+      font-size: 1.35rem;
+      font-weight: 600;
+      margin: 2rem 0 1rem 0;
+      color: var(--text-primary);
+    }
+
+    p {
+      margin-bottom: 1.25rem;
+      color: var(--text-secondary);
+      font-size: 1rem;
+      line-height: 1.7;
+    }
+
+    /* Code Block Formatting */
+    pre {
+      background-color: var(--code-bg);
+      border: 1px solid var(--code-border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      overflow-x: auto;
+      margin: 1.5rem 0;
+      box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.3);
+      position: relative;
+    }
+
+    code {
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+      color: #e2e8f0;
+    }
+
+    body.light-theme code {
+      color: #0f172a;
+    }
+
+    /* Inline Code */
+    :not(pre) > code {
+      background-color: var(--code-bg);
+      border: 1px solid var(--code-border);
+      padding: 0.2rem 0.4rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      color: var(--primary);
+      word-break: break-word;
+    }
+
+    /* Comparison Cards Grid */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 2rem;
+      margin: 2rem 0;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 2rem;
+      box-shadow: 0 8px 32px var(--card-shadow);
+      backdrop-filter: blur(12px);
+      transition: all var(--transition-speed) cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(99, 102, 241, 0.3);
+      box-shadow: 0 12px 40px rgba(99, 102, 241, 0.1);
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+    }
+
+    .card-title {
+      font-family: var(--font-title);
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .card-meta {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 1.25rem;
+      display: block;
+    }
+
+    .card-list {
+      list-style: none;
+    }
+
+    .card-list-item {
+      font-size: 0.925rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+
+    .card-list-item::before {
+      content: '✦';
+      color: var(--secondary);
+      font-size: 0.8rem;
+      margin-top: 2px;
+    }
+
+    /* Warning/Info Callouts */
+    .callout {
+      background: var(--card-bg);
+      border-left: 4px solid var(--primary);
+      border-radius: 0 12px 12px 0;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+      box-shadow: 0 4px 16px var(--card-shadow);
+      display: flex;
+      gap: 1rem;
+    }
+
+    .callout-warning {
+      border-left-color: var(--warning);
+      background: linear-gradient(to right, var(--warning-glow), transparent);
+    }
+
+    .callout-danger {
+      border-left-color: var(--danger);
+      background: linear-gradient(to right, var(--danger-glow), transparent);
+    }
+
+    .callout-success {
+      border-left-color: var(--accent);
+      background: linear-gradient(to right, var(--accent-glow), transparent);
+    }
+
+    .callout-icon {
+      font-size: 1.5rem;
+      line-height: 1;
+    }
+
+    .callout-content h4 {
+      font-family: var(--font-title);
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+      color: var(--text-primary);
+    }
+
+    .callout-content p {
+      margin-bottom: 0;
+      font-size: 0.925rem;
+    }
+
+    /* Table Styling */
+    .table-container {
+      overflow-x: auto;
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      margin: 2rem 0;
+      box-shadow: 0 8px 24px var(--card-shadow);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.95rem;
+    }
+
+    th {
+      background-color: rgba(15, 23, 42, 0.8);
+      font-family: var(--font-title);
+      font-weight: 600;
+      padding: 1rem 1.25rem;
+      border-bottom: 2px solid var(--card-border);
+      color: var(--text-primary);
+    }
+
+    body.light-theme th {
+      background-color: #cbd5e1;
+    }
+
+    td {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--card-border);
+      color: var(--text-secondary);
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background-color: rgba(99, 102, 241, 0.03);
+    }
+
+    /* Analogy Box */
+    .analogy-box {
+      border: 2px dashed var(--primary);
+      border-radius: 16px;
+      padding: 2.5rem;
+      background: radial-gradient(circle at 10% 20%, var(--primary-glow), transparent 60%);
+      margin: 2.5rem 0;
+      position: relative;
+    }
+
+    .analogy-title {
+      font-family: var(--font-title);
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .keyboard-graphic {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      background: #0f172a;
+      border: 4px solid #334155;
+      border-radius: 10px;
+      padding: 10px;
+      max-width: 500px;
+      margin: 1.5rem 0;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+    }
+
+    .keyboard-row {
+      display: flex;
+      gap: 4px;
+    }
+
+    .key {
+      flex: 1;
+      height: 30px;
+      background: #1e293b;
+      border-radius: 4px;
+      border-bottom: 3px solid #0f172a;
+      color: #64748b;
+      font-size: 0.65rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      transition: all 0.1s ease;
+      cursor: default;
+    }
+
+    .key.special {
+      background: var(--primary);
+      color: white;
+      font-weight: bold;
+      box-shadow: 0 0 10px var(--primary-glow);
+    }
+
+    .key:hover {
+      background: #334155;
+      transform: translateY(1px);
+    }
+
+    .key.special:hover {
+      background: var(--primary-hover);
+    }
+
+    /* Diagram Styles */
+    .flow-diagram {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+      margin: 3rem 0;
+      padding: 2rem;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      box-shadow: 0 8px 32px var(--card-shadow);
+    }
+
+    .diagram-step {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 1rem 1.5rem;
+      width: 100%;
+      max-width: 450px;
+      text-align: center;
+      font-weight: 500;
+      color: white;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+      position: relative;
+    }
+
+    body.light-theme .diagram-step {
+      background: white;
+      border-color: #cbd5e1;
+      color: #0f172a;
+    }
+
+    .diagram-step.accent-step {
+      border-color: var(--primary);
+      background: linear-gradient(135deg, #1e293b, var(--primary-glow));
+    }
+
+    .diagram-arrow {
+      color: var(--primary);
+      font-size: 1.5rem;
+      font-weight: bold;
+      animation: pulseArrow 2.5s infinite;
+    }
+
+    @keyframes pulseArrow {
+      0%, 100% { transform: translateY(0); opacity: 0.6; }
+      50% { transform: translateY(4px); opacity: 1; }
+    }
+
+    /* Footer styling */
+    footer {
+      border-top: 1px solid var(--card-border);
+      padding-top: 2rem;
+      margin-top: 6rem;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--scrollbar-track);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--scrollbar-thumb);
+      border-radius: 5px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--primary);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 992px) {
+      .sidebar {
+        display: none; /* Can build toggle/drawer later if needed */
+      }
+      .main-content {
+        margin-left: 0;
+        padding: 2rem;
+      }
+    }
+  </style>
+</head>
+<body id="body-root">
+
+  <div class="app-container">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="brand-section">
+        <div class="brand-logo">U</div>
+        <div class="brand-title">UCP Guide</div>
+      </div>
+      
+      <nav aria-label="Table of Contents">
+        <ul class="nav-list">
+          <li class="nav-item">
+            <a href="#introduction" class="nav-link active" id="link-intro">1. Overview of UCP</a>
+          </li>
+          <li class="nav-item">
+            <a href="#core-concepts" class="nav-link" id="link-core">2. Core Architectural Concepts</a>
+          </li>
+          <li class="nav-item">
+            <a href="#profiles-comparison" class="nav-link" id="link-comparison">3. Profiles Comparison</a>
+          </li>
+          <li class="nav-item">
+            <a href="#transports" class="nav-link" id="link-transports">4. Transport Types</a>
+          </li>
+          <li class="nav-item">
+            <a href="#keyboard-analogy" class="nav-link" id="link-analogy">5. USB Keyboard Analogy</a>
+          </li>
+          <li class="nav-item">
+            <a href="#endpoints-lifecycle" class="nav-link" id="link-lifecycle">6. Endpoints & Lifecycle</a>
+          </li>
+          <li class="nav-item">
+            <a href="#payments" class="nav-link" id="link-payments">7. Payments & Signing Keys</a>
+          </li>
+          <li class="nav-item">
+            <a href="#mock-catalog" class="nav-link" id="link-catalog">8. Catalog Database</a>
+          </li>
+          <li class="nav-item">
+            <a href="#debugging" class="nav-link" id="link-debugging">9. Troubleshooting</a>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- Main Content Container -->
+    <main class="main-content">
+      
+      <header>
+        <div class="theme-toggle-container">
+          <button id="theme-toggle-btn" onclick="toggleTheme()" aria-label="Toggle light and dark mode">
+            <span id="theme-btn-icon">☀️</span> <span id="theme-btn-text">Light Mode</span>
+          </button>
+        </div>
+        
+        <h1>Universal Commerce Protocol</h1>
+        <div class="subtitle">Configuration, Discovery Profiles, and Agent Card Standards Reference Guide.</div>
+      </header>
+
+      <!-- Section 1: Introduction -->
+      <section id="introduction">
+        <h2>1. Overview of UCP Discovery</h2>
+        <p>
+          The Universal Commerce Protocol (UCP) decouples core transactional workflows (checkout, discounts, fulfillment) from vendor-specific architectures. To interact successfully, clients and services must align on supported features, protocol formats, and endpoint locations. 
+        </p>
+        <p>
+          UCP addresses this discovery requirement using two main artifacts:
+        </p>
+        <div class="cards-grid">
+          <div class="card">
+            <div class="card-title">REST / API Discovery Profile</div>
+            <span class="card-meta">Exposed at /.well-known/ucp</span>
+            <ul class="card-list">
+              <li class="card-list-item">Announces capabilities for REST and MCP transports.</li>
+              <li class="card-list-item">Hosts machine-readable OpenAPI and OpenRPC schemas.</li>
+              <li class="card-list-item">Typically defined in files like <a href="file:///c:/Users/sureshbabum_500214/Projects/UCP Commerce/samples/rest/python/server/routes/discovery_profile.json">discovery_profile.json</a>.</li>
+            </ul>
+          </div>
+          <div class="card">
+            <div class="card-title">A2A Agent Card</div>
+            <span class="card-meta">Exposed at /.well-known/agent-card.json</span>
+            <ul class="card-list">
+              <li class="card-list-item">Functions as a public manifest for autonomous AI agents.</li>
+              <li class="card-list-item">Contains organization details, preferred transports, and conversational skills.</li>
+              <li class="card-list-item">Configured in files like <a href="file:///c:/Users/sureshbabum_500214/Projects/UCP Commerce/samples/a2a/business_agent/src/business_agent/data/agent_card.json">agent_card.json</a>.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 2: Core Concepts -->
+      <section id="core-concepts">
+        <h2>2. Core Architectural Concepts</h2>
+        
+        <h3>Spec vs. Schema</h3>
+        <p>
+          A fundamental concept in UCP discovery is the distinction between a **Specification** and a **Schema**:
+        </p>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Aspect</th>
+                <th>Specification (Spec)</th>
+                <th>Schema</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Definition</strong></td>
+                <td>A human-readable documentation standard describing logic and requirements.</td>
+                <td>A machine-readable structural representation (JSON Schema, OpenAPI, OpenRPC).</td>
+              </tr>
+              <tr>
+                <td><strong>Primary Purpose</strong></td>
+                <td>Design reference for developers writing client and server systems.</td>
+                <td>Runtime validation, auto-generating client SDKs, and routing JSON payloads.</td>
+              </tr>
+              <tr>
+                <td><strong>Format</strong></td>
+                <td>HTML pages, Markdown, PDF manuals (e.g. <code>/specification/shopping/checkout</code>).</td>
+                <td>Structured validation files (e.g. <code>/schemas/shopping/checkout.json</code>).</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Versions and Version Anchors</h3>
+        <p>
+          Version definitions (e.g., <code>2026-01-23</code>) act as anchors. The root protocol version guarantees the overarching vocabulary, whereas the component-level versions ensure individual capabilities do not drift.
+        </p>
+
+        <div class="callout callout-warning">
+          <div class="callout-icon">⚠️</div>
+          <div class="callout-content">
+            <h4>The Mismatch Problem & Contract Breaches</h4>
+            <p>
+              If a server advertises capability support for version <code>2026-01-23</code> in its discovery profile, but points to a schema file or parses requests using data structures from a different version, it causes a contract breach. A UCP client will build its JSON payloads based on the advertised schema. When these payloads reach the server, validating layers (such as Pydantic) will fail, throwing <strong><code>422 Unprocessable Entity</code></strong> errors.
+            </p>
+          </div>
+        </div>
+
+        <h3>Standard vs. Custom Schemas</h3>
+        <p>
+          Standard capabilities (like UCP checkout or fulfillment) must adhere directly to official schemas. However, merchants can append custom capabilities (e.g., <code>com.flower_shop.catalog</code>). Because custom capabilities publish their own schema URL directly inside the profile, clients can download and validate against them on-the-fly, avoiding version mismatch failures.
+        </p>
+
+        <h3>Capability Inheritance</h3>
+        <p>
+          UCP capabilities are modular and use the <code>extends</code> field to prevent redundancy. For example, the <code>fulfillment</code> capability extends <code>checkout</code>. This layout maps directly to Python codebases: models like <code>UnifiedCheckoutUpdateRequest</code> configure Pydantic with <code>extra="allow"</code>, permitting additional payload structures to wrap around core structures dynamically.
+        </p>
+      </section>
+
+      <!-- Section 3: Profiles Comparison -->
+      <section id="profiles-comparison">
+        <h2>3. Configuration Document Breakdown</h2>
+        <p>
+          While REST backends rely on a single discovery profile, Agent-to-Agent (A2A) agents run with two configuration assets. Here is how they stack up:
+        </p>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Configuration File</th>
+                <th>Context</th>
+                <th>Data Layout Style</th>
+                <th>Primary Role</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>REST Profile</strong><br><code>discovery_profile.json</code></td>
+                <td>Public REST Route</td>
+                <td><strong>Array-Based</strong><br>Services map to lists of transport/version options.</td>
+                <td>Allows one service namespace to expose multiple transport formats (REST, MCP, etc.) concurrently.</td>
+              </tr>
+              <tr>
+                <td><strong>Agent Card</strong><br><code>agent_card.json</code></td>
+                <td>Public Agent Route</td>
+                <td><strong>Manifest-Based</strong><br>Extensible list of skills, identity, and transport types.</td>
+                <td>Broadcasting the agent's natural-language skills and extensions during P2P handshakes.</td>
+              </tr>
+              <tr>
+                <td><strong>A2A Config</strong><br><code>ucp.json</code></td>
+                <td>Internal Server Data</td>
+                <td><strong>Nested-Keys</strong><br>Legacy format: Maps namespace keys directly to configs.</td>
+                <td>Used internally by the agent's backend (e.g. <a href="file:///c:/Users/sureshbabum_500214/Projects/UCP Commerce/samples/a2a/business_agent/src/business_agent/store.py">store.py</a>) to initialize credential mappings and payment handlers.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Array-Based vs. Nested-Keys Style</h3>
+        <p>
+          The array-based style used in modern discovery profiles supports polymorphism. A single service like <code>dev.ucp.shopping</code> can list multiple transport mechanisms side-by-side:
+        </p>
+        <pre><code>{
+  "ucp": {
+    "services": {
+      "dev.ucp.shopping": [
+        { "transport": "rest", "endpoint": "...", "schema": "..." },
+        { "transport": "mcp", "endpoint": "...", "schema": "..." }
+      ]
+    }
+  }
+}</code></pre>
+        <p>
+          Conversely, the internal A2A <a href="file:///c:/Users/sureshbabum_500214/Projects/UCP Commerce/samples/a2a/business_agent/src/business_agent/data/ucp.json">ucp.json</a> uses a direct object mapping since the agent backend acts as a single, static instance with defined specifications:
+        </p>
+        <pre><code>{
+  "ucp": {
+    "services": {
+      "dev.ucp.shopping": {
+        "version": "2026-01-23",
+        "spec": "https://ucp.dev/2026-01-23/specification/shopping"
+      }
+    }
+  }
+}</code></pre>
+      </section>
+
+      <!-- Section 4: Transports -->
+      <section id="transports">
+        <h2>4. Transport Types Breakdown</h2>
+        <p>
+          The UCP discovery specification supports four distinct transport configurations:
+        </p>
+        
+        <div class="cards-grid">
+          <div class="card">
+            <div class="card-title">REST</div>
+            <span class="card-meta">Traditional HTTP Endpoint</span>
+            <p style="font-size: 0.9rem;">Requires both an HTTP <code>endpoint</code> and an OpenAPI <code>schema</code>. Clients perform state modifications via standard HTTP verbs.</p>
+          </div>
+          
+          <div class="card">
+            <div class="card-title">MCP (Model Context Protocol)</div>
+            <span class="card-meta">AI-First JSON-RPC</span>
+            <p style="font-size: 0.9rem;">Requires an <code>endpoint</code> and an OpenRPC <code>schema</code>. Exposes tools and data context interfaces to LLMs natively.</p>
+          </div>
+          
+          <div class="card">
+            <div class="card-title">A2A (Agent-to-Agent)</div>
+            <span class="card-meta">P2P JSON-RPC Envelope</span>
+            <p style="font-size: 0.9rem;">Requires pointing to an <code>agent_card.json</code>. Schema fields are omitted, as payload mapping happens through the agent's public card extensions.</p>
+          </div>
+          
+          <div class="card">
+            <div class="card-title">Embedded</div>
+            <span class="card-meta">In-Process Library</span>
+            <p style="font-size: 0.9rem;">Has <strong>no endpoint</strong>. The consumer runs the shopping engine in-memory, requiring only the API schema to route commands locally.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 5: Analogy -->
+      <section id="keyboard-analogy">
+        <h2>5. The USB Keyboard Analogy</h2>
+        
+        <div class="analogy-box">
+          <div class="analogy-title">🔌 Why declare granular capabilities?</div>
+          <p>
+            Why can't we just provide a single endpoint URL for UCP, rather than declaring individual capabilities like checkout, fulfillment, and discount?
+          </p>
+          <p>
+            Think of a <strong>USB Keyboard</strong>:
+          </p>
+          
+          <div class="keyboard-graphic">
+            <div class="keyboard-row">
+              <div class="key">Esc</div>
+              <div class="key">F1</div>
+              <div class="key">F2</div>
+              <div class="key">F3</div>
+              <div class="key">F4</div>
+              <div class="key">F5</div>
+              <div class="key">F6</div>
+              <div class="key">F7</div>
+              <div class="key">F8</div>
+              <div class="key">F9</div>
+            </div>
+            <div class="keyboard-row">
+              <div class="key">~</div>
+              <div class="key">1</div>
+              <div class="key">2</div>
+              <div class="key">3</div>
+              <div class="key font-mono">Q</div>
+              <div class="key font-mono">W</div>
+              <div class="key font-mono">E</div>
+              <div class="key font-mono">R</div>
+              <div class="key font-mono">T</div>
+              <div class="key">Bksp</div>
+            </div>
+            <div class="keyboard-row">
+              <div class="key" style="flex: 1.5;">Tab</div>
+              <div class="key font-mono">A</div>
+              <div class="key font-mono">S</div>
+              <div class="key font-mono">D</div>
+              <div class="key font-mono">F</div>
+              <div class="key font-mono">G</div>
+              <div class="key font-mono">H</div>
+              <div class="key font-mono">J</div>
+              <div class="key" style="flex: 1.5;">Enter</div>
+            </div>
+            <div class="keyboard-row">
+              <div class="key" style="flex: 2;">Shift</div>
+              <div class="key font-mono">Z</div>
+              <div class="key font-mono">X</div>
+              <div class="key font-mono">C</div>
+              <div class="key font-mono">V</div>
+              <div class="key special">Fulfillment OLED</div>
+              <div class="key special">Discounts Dial</div>
+              <div class="key" style="flex: 2;">Shift</div>
+            </div>
+          </div>
+
+          <p>
+            When you plug in a keyboard, it declares itself as a standard <strong>Human Interface Device (HID) Class</strong>. The OS understands how to receive standard letters immediately without custom drivers.
+          </p>
+          <p>
+            However, if your keyboard has custom capabilities—like an integrated <strong>Fulfillment OLED display</strong> or a <strong>Discounts volume dial</strong>—it must announce these extensions to the OS so correct companion software is mapped.
+          </p>
+          <p>
+            Similarly, in UCP, the base service (<code>dev.ucp.shopping</code>) is like the keyboard class. The individual capabilities (checkout, discounts, fulfillment) are the specialized features. A digital-only store doesn't support physical fulfillment, and a wholesale store might not support coupon codes. By declaring capabilities in the Discovery Profile or Agent Card, clients can build the checkout experience dynamically without requesting info that the server cannot process.
+          </p>
+        </div>
+      </section>
+
+      <!-- Section 6: Endpoints and Lifecycle -->
+      <section id="endpoints-lifecycle">
+        <h2>6. UCP REST Endpoints & Resource Lifecycle</h2>
+        <p>
+          UCP streamlines e-commerce APIs by consolidating modifications into a single resource lifecycle centered around the **Checkout Session**.
+        </p>
+
+        <div class="flow-diagram">
+          <div class="diagram-step">1. Initialize Checkout Session (Create ID)</div>
+          <div class="diagram-arrow">↓</div>
+          <div class="diagram-step accent-step">2. PUT /checkout-sessions/{id}<br><small>(Submit address, coupons, and shipping updates collectively)</small></div>
+          <div class="diagram-arrow">↓</div>
+          <div class="diagram-step">3. POST /checkout-sessions/{id}/complete</div>
+          <div class="diagram-arrow">↓</div>
+          <div class="diagram-step accent-step">4. GET /orders/{id}<br><small>(Retrieve finalized confirmation details)</small></div>
+        </div>
+
+        <h3>The Single Resource Update Model</h3>
+        <p>
+          Instead of creating discrete endpoints for shipping address updates, discount applications, or courier options, the entire state is managed via <code>PUT /checkout-sessions/{id}</code>. The client submits the updated document, and the backend service (like <a href="file:///c:/Users/sureshbabum_500214/Projects/UCP Commerce/samples/rest/python/server/services/checkout_service.py">checkout_service.py</a>) calculates updates in a single atomic pass, preventing inconsistencies between items, taxes, and shipping rates.
+        </p>
+        <p>
+          When the order completes, the checkout session is cleared out, and a permanent order confirmation is generated. This completed order is fetched via <code>GET /orders/{id}</code> (defined in <a href="file:///c:/Users/sureshbabum_500214/Projects/UCP Commerce/samples/rest/python/server/routes/order.py">order.py</a>).
+        </p>
+      </section>
+
+      <!-- Section 7: Payments -->
+      <section id="payments">
+        <h2>7. Payment Handlers and Signing Keys</h2>
+        <p>
+          Actual processing of payments is delegated to dedicated modules called **Payment Handlers** (e.g., Google Pay or Shop Pay).
+        </p>
+        <p>
+          Integrating these handlers securely depends on two primary concepts:
+        </p>
+        
+        <h3>1. Webhook Callbacks</h3>
+        <p>
+          When a customer authorizes a transaction inside a payment instrument, the payment handler processes the funds and notifies the UCP merchant server asynchronously using webhook endpoints.
+        </p>
+        
+        <h3>2. Cryptographic Signing Keys</h3>
+        <p>
+          To prevent unauthorized parties from spoofing checkout completions, webhook payloads must be authenticated. The payment handler signs the webhook body using a **private key**. The merchant server validates the signature using the corresponding **public key** (registered in the signing key configuration), establishing a secure trust boundary.
+        </p>
+      </section>
+
+      <!-- Section 8: Catalog Database -->
+      <section id="mock-catalog">
+        <h2>8. Catalog Database and Mock Loading</h2>
+        <p>
+          In typical demo environments, the UCP backend must look up product prices and descriptions without relying on external SaaS connections.
+        </p>
+        <p>
+          This lookup is supported by <a href="file:///c:/Users/sureshbabum_500214/Projects/UCP Commerce/samples/a2a/business_agent/src/business_agent/data/products.json">products.json</a>:
+        </p>
+        <div class="callout callout-success">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <h4>How Products JSON is Utilized</h4>
+            <p>
+              During application startup, the retail store manager class inside <a href="file:///c:/Users/sureshbabum_500214/Projects/UCP Commerce/samples/a2a/business_agent/src/business_agent/store.py">store.py</a> reads this file and parses all records into in-memory Pydantic <code>Product</code> objects. 
+            </p>
+            <p>
+              When a user triggers a conversational search (matching A2A skills), the engine executes queries against these objects via <code>search_products</code>. It also validates item stock, categories, and prices (<code>offers.price</code>) when items are added to a checkout session.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 9: Debugging -->
+      <section id="debugging">
+        <h2>9. Debugging and Troubleshooting Discovery</h2>
+        <p>
+          If you suspect the discovery mapping or version handshake is failing:
+        </p>
+        
+        <h3>Using Debug breakpoints</h3>
+        <p>
+          You can insert a Python breakpoint inside the discovery service route handler <a href="file:///c:/Users/sureshbabum_500214/Projects/UCP Commerce/samples/rest/python/server/routes/discovery.py">discovery.py</a>:
+        </p>
+        <pre><code># Insert breakpoint in discovery.py
+def get_discovery_profile():
+    breakpoint()
+    return load_profile_from_disk()</code></pre>
+        
+        <h3>Pdb Commands Reference</h3>
+        <p>
+          Once the interpreter interrupts execution, run these commands in your debugger command line to inspect values:
+        </p>
+        <ul>
+          <li><code>p profile</code> - Print the parsed profile dictionary.</li>
+          <li><code>p profile["ucp"]["capabilities"]</code> - Check configured capabilities.</li>
+          <li><code>n</code> - Step to the next line.</li>
+          <li><code>c</code> - Continue execution.</li>
+        </ul>
+      </section>
+
+      <footer>
+        <div>Universal Commerce Protocol Reference Manual</div>
+        <div>Configured for UCP Commerce Workspace</div>
+      </footer>
+
+    </main>
+
+  </div>
+
+  <script>
+    // Theme Toggle Logic
+    function toggleTheme() {
+      const body = document.getElementById('body-root');
+      const btnIcon = document.getElementById('theme-btn-icon');
+      const btnText = document.getElementById('theme-btn-text');
+      
+      body.classList.toggle('light-theme');
+      
+      if (body.classList.contains('light-theme')) {
+        btnIcon.textContent = '🌙';
+        btnText.textContent = 'Dark Mode';
+        localStorage.setItem('theme', 'light');
+      } else {
+        btnIcon.textContent = '☀️';
+        btnText.textContent = 'Light Mode';
+        localStorage.setItem('theme', 'dark');
+      }
+    }
+
+    // Scroll Spy for Navigation Active State Highlight
+    window.addEventListener('DOMContentLoaded', () => {
+      const sections = document.querySelectorAll('section');
+      const navLinks = document.querySelectorAll('.nav-link');
+      
+      // Load stored theme if any
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme === 'light') {
+        document.getElementById('body-root').classList.add('light-theme');
+        document.getElementById('theme-btn-icon').textContent = '🌙';
+        document.getElementById('theme-btn-text').textContent = 'Dark Mode';
+      }
+
+      const observerOptions = {
+        root: null,
+        rootMargin: '0px',
+        threshold: 0.35
+      };
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const id = entry.target.getAttribute('id');
+            navLinks.forEach(link => {
+              if (link.getAttribute('href') === `#${id}`) {
+                link.classList.add('active');
+              } else {
+                link.classList.remove('active');
+              }
+            });
+          }
+        });
+      }, observerOptions);
+
+      sections.forEach(section => observer.observe(section));
+    });
+  </script>
+</body>
+</html>

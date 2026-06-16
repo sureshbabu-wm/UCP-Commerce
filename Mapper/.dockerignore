@@ -1,0 +1,12 @@
+.venv/
+.ucp_src/
+__pycache__/
+**/__pycache__/
+*.pyc
+.pytest_cache/
+.env
+.git/
+tests/
+examples/
+docs/
+*.md

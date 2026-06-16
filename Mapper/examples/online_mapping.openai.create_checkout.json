@@ -1,0 +1,393 @@
+{
+  "ucp_version": "2026-01-23",
+  "provider": "openai",
+  "endpoint_mappings": [
+    {
+      "ucp_operation": "create_checkout",
+      "status": "mapped",
+      "confidence": 0.9,
+      "client_calls": [
+        {
+          "operationId": "createCart",
+          "method": "POST",
+          "path": "/api/cart",
+          "when": null
+        }
+      ],
+      "notes": null
+    }
+  ],
+  "field_mappings": [
+    {
+      "ucp_operation": "create_checkout",
+      "direction": "request",
+      "fields": [
+        {
+          "target_path": "$.line_items[*].item.id",
+          "source_path": "$.products[*].sku",
+          "transform": "rename",
+          "args": {},
+          "status": "mapped",
+          "confidence": 0.9,
+          "rationale": "sku is the product identifier used in the client API."
+        },
+        {
+          "target_path": "$.line_items[*].quantity",
+          "source_path": "$.products[*].qty",
+          "transform": "rename",
+          "args": {},
+          "status": "mapped",
+          "confidence": 0.9,
+          "rationale": "qty represents the quantity of the product in the client API."
+        },
+        {
+          "target_path": "$.buyer.first_name",
+          "source_path": "$.customer.name",
+          "transform": "split",
+          "args": {
+            "separator": " ",
+            "index": 0
+          },
+          "status": "mapped",
+          "confidence": 0.7,
+          "rationale": "Customer full name is split to extract first name."
+        },
+        {
+          "target_path": "$.buyer.last_name",
+          "source_path": "$.customer.name",
+          "transform": "split",
+          "args": {
+            "separator": " ",
+            "index": 1
+          },
+          "status": "mapped",
+          "confidence": 0.7,
+          "rationale": "Customer full name is split to extract last name."
+        },
+        {
+          "target_path": "$.buyer.email",
+          "source_path": "$.customer.email_address",
+          "transform": "rename",
+          "args": {},
+          "status": "mapped",
+          "confidence": 0.9,
+          "rationale": "email_address is the email of the customer in the client API."
+        },
+        {
+          "target_path": "$.currency",
+          "source_path": "$.currency_code",
+          "transform": "rename",
+          "args": {},
+          "status": "mapped",
+          "confidence": 0.9,
+          "rationale": "currency_code is the currency field in the client API."
+        }
+      ]
+    },
+    {
+      "ucp_operation": "create_checkout",
+      "direction": "response",
+      "fields": [
+        {
+          "target_path": "$.id",
+          "source_path": "$.cart_id",
+          "transform": "rename",
+          "args": {},
+          "status": "mapped",
+          "confidence": 0.9,
+          "rationale": "cart_id is the unique identifier for the cart in the client API."
+        },
+        {
+          "target_path": "$.line_items[*].item.id",
+          "source_path": "$.products[*].sku",
+          "transform": "rename",
+          "args": {},
+          "status": "mapped",
+          "confidence": 0.9,
+          "rationale": "sku is the product identifier used in the client API."
+        },
+        {
+          "target_path": "$.line_items[*].item.title",
+          "source_path": "$.products[*].name",
+          "transform": "rename",
+          "args": {},
+          "status": "mapped",
+          "confidence": 0.9,
+          "rationale": "name is the product title in the client API."
+        },
+        {
+          "target_path": "$.line_items[*].item.price",
+          "source_path": "$.products[*].unit_price",
+          "transform": "cents_from_major",
+          "args": {
+            "scale": 100
+          },
+          "status": "mapped",
+          "confidence": 0.9,
+          "rationale": "unit_price is in major units and needs conversion to minor units."
+        },
+        {
+          "target_path": "$.line_items[*].quantity",
+          "source_path": "$.products[*].qty",
+          "transform": "rename",
+          "args": {},
+          "status": "mapped",
+          "confidence": 0.9,
+          "rationale": "qty represents the quantity of the product in the client API."
+        },
+        {
+          "target_path": "$.currency",
+          "source_path": "$.currency_code",
+          "transform": "rename",
+          "args": {},
+          "status": "mapped",
+          "confidence": 0.9,
+          "rationale": "currency_code is the currency field in the client API."
+        },
+        {
+          "target_path": "$.totals[*].amount",
+          "source_path": "$.grand_total",
+          "transform": "cents_from_major",
+          "args": {
+            "scale": 100
+          },
+          "status": "mapped",
+          "confidence": 0.9,
+          "rationale": "grand_total is in major units and needs conversion to minor units."
+        },
+        {
+          "target_path": "$.ucp",
+          "source_path": null,
+          "transform": "computed",
+          "args": {
+            "note": "server-authoritative (rule R1)"
+          },
+          "status": "computed",
+          "confidence": 1.0,
+          "rationale": "UCP metadata is server-authoritative."
+        },
+        {
+          "target_path": "$.status",
+          "source_path": null,
+          "transform": "computed",
+          "args": {
+            "note": "server/gateway-authoritative (rule R6)"
+          },
+          "status": "computed",
+          "confidence": 1.0,
+          "rationale": "server-authoritative; not mapped from client"
+        },
+        {
+          "target_path": "$.totals",
+          "source_path": null,
+          "transform": "computed",
+          "args": {
+            "note": "server/gateway-authoritative (rule R6)"
+          },
+          "status": "computed",
+          "confidence": 1.0,
+          "rationale": "server-authoritative; not mapped from client"
+        },
+        {
+          "target_path": "$.line_items[*].totals",
+          "source_path": null,
+          "transform": "computed",
+          "args": {
+            "note": "server/gateway-authoritative (rule R6)"
+          },
+          "status": "computed",
+          "confidence": 1.0,
+          "rationale": "server-authoritative; not mapped from client"
+        },
+        {
+          "target_path": "$.order",
+          "source_path": null,
+          "transform": "computed",
+          "args": {
+            "note": "server/gateway-authoritative (rule R6)"
+          },
+          "status": "computed",
+          "confidence": 1.0,
+          "rationale": "server-authoritative; not mapped from client"
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "required_total": 44,
+    "mapped": 9,
+    "defaulted": 0,
+    "computed": 11,
+    "unmapped": 24
+  },
+  "review_queue": [
+    {
+      "ucp_operation": "create_checkout",
+      "direction": null,
+      "target_path": "$.fulfillment.methods[*].groups[*].line_item_ids",
+      "reason": "required UCP field has no mapping (gap)",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "create_checkout",
+      "direction": null,
+      "target_path": "$.fulfillment.methods[*].groups[*].options[*].title",
+      "reason": "required UCP field has no mapping (gap)",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "create_checkout",
+      "direction": null,
+      "target_path": "$.fulfillment.methods[*].line_item_ids",
+      "reason": "required UCP field has no mapping (gap)",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "create_checkout",
+      "direction": null,
+      "target_path": "$.discounts.applied[*].allocations[*].amount",
+      "reason": "required UCP field has no mapping (gap)",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "create_checkout",
+      "direction": null,
+      "target_path": "$.payment.instruments[*].type",
+      "reason": "required UCP field has no mapping (gap)",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "create_checkout",
+      "direction": null,
+      "target_path": "$.fulfillment.methods[*].type",
+      "reason": "required UCP field has no mapping (gap)",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "create_checkout",
+      "direction": null,
+      "target_path": "$.links",
+      "reason": "required UCP field has no mapping (gap)",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "create_checkout",
+      "direction": null,
+      "target_path": "$.fulfillment.available_methods[*].type",
+      "reason": "required UCP field has no mapping (gap)",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "create_checkout",
+      "direction": null,
+      "target_path": "$.discounts.applied[*].allocations[*].path",
+      "reason": "required UCP field has no mapping (gap)",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "create_checkout",
+      "direction": null,
+      "target_path": "$.fulfillment.methods[*].groups[*].options[*].totals[*].type",
+      "reason": "required UCP field has no mapping (gap)",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "create_checkout",
+      "direction": null,
+      "target_path": "$.line_items[*].id",
+      "reason": "required UCP field has no mapping (gap)",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "create_checkout",
+      "direction": null,
+      "target_path": "$.payment.instruments[*].id",
+      "reason": "required UCP field has no mapping (gap)",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "create_checkout",
+      "direction": null,
+      "target_path": "$.links[*].type",
+      "reason": "required UCP field has no mapping (gap)",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "create_checkout",
+      "direction": null,
+      "target_path": "$.fulfillment.available_methods[*].line_item_ids",
+      "reason": "required UCP field has no mapping (gap)",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "create_checkout",
+      "direction": null,
+      "target_path": "$.fulfillment.methods[*].groups[*].options[*].totals",
+      "reason": "required UCP field has no mapping (gap)",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "create_checkout",
+      "direction": null,
+      "target_path": "$.payment.instruments[*].credential.type",
+      "reason": "required UCP field has no mapping (gap)",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "create_checkout",
+      "direction": null,
+      "target_path": "$.fulfillment.methods[*].groups[*].options[*].totals[*].amount",
+      "reason": "required UCP field has no mapping (gap)",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "create_checkout",
+      "direction": null,
+      "target_path": "$.fulfillment.methods[*].groups[*].id",
+      "reason": "required UCP field has no mapping (gap)",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "create_checkout",
+      "direction": null,
+      "target_path": "$.discounts.applied[*].title",
+      "reason": "required UCP field has no mapping (gap)",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "create_checkout",
+      "direction": null,
+      "target_path": "$.fulfillment.methods[*].groups[*].options[*].id",
+      "reason": "required UCP field has no mapping (gap)",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "create_checkout",
+      "direction": null,
+      "target_path": "$.fulfillment.methods[*].id",
+      "reason": "required UCP field has no mapping (gap)",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "create_checkout",
+      "direction": null,
+      "target_path": "$.links[*].url",
+      "reason": "required UCP field has no mapping (gap)",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "create_checkout",
+      "direction": null,
+      "target_path": "$.discounts.applied[*].amount",
+      "reason": "required UCP field has no mapping (gap)",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "create_checkout",
+      "direction": null,
+      "target_path": "$.payment.instruments[*].handler_id",
+      "reason": "required UCP field has no mapping (gap)",
+      "confidence": null
+    }
+  ]
+}

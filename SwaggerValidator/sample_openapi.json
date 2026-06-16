@@ -1,0 +1,432 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "UCP Shopping REST API",
+    "version": "1.0.0",
+    "description": "Compliant Universal Commerce Protocol REST API implementation."
+  },
+  "paths": {
+    "/checkout-sessions": {
+      "post": {
+        "summary": "Create Checkout",
+        "description": "Creates a new checkout session.",
+        "operationId": "createCheckout",
+        "tags": [
+          "checkout"
+        ],
+        "parameters": [
+          {
+            "name": "Request-Signature",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "UCP Signature header"
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Idempotency key for request"
+          },
+          {
+            "name": "Request-Id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Unique request identifier"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CheckoutCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Checkout"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      }
+    },
+    "/checkout-sessions/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "Checkout Session ID"
+        },
+        {
+          "name": "Request-Signature",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "UCP Signature header"
+        },
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "Idempotency key for request"
+        },
+        {
+          "name": "Request-Id",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "Unique request identifier"
+        }
+      ],
+      "get": {
+        "summary": "Get Checkout",
+        "description": "Retrieves the state of an existing checkout session.",
+        "operationId": "getCheckout",
+        "tags": [
+          "checkout"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Checkout"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      },
+      "put": {
+        "summary": "Update Checkout",
+        "description": "Updates details of an existing checkout session.",
+        "operationId": "updateCheckout",
+        "tags": [
+          "checkout"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CheckoutUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Checkout"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      }
+    },
+    "/checkout-sessions/{id}/complete": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "Checkout Session ID"
+        },
+        {
+          "name": "Request-Signature",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "UCP Signature"
+        },
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "Idempotency key"
+        },
+        {
+          "name": "Request-Id",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "Request identifier"
+        }
+      ],
+      "post": {
+        "summary": "Complete Checkout",
+        "description": "Completes the checkout session.",
+        "operationId": "completeCheckout",
+        "tags": [
+          "checkout"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Checkout"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      }
+    },
+    "/checkout-sessions/{id}/cancel": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "Checkout Session ID"
+        },
+        {
+          "name": "Request-Signature",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "UCP Signature"
+        },
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "Idempotency key"
+        },
+        {
+          "name": "Request-Id",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "Request identifier"
+        }
+      ],
+      "post": {
+        "summary": "Cancel Checkout",
+        "description": "Cancels the checkout session.",
+        "operationId": "cancelCheckout",
+        "tags": [
+          "checkout"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Checkout"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key"
+      }
+    },
+    "schemas": {
+      "Checkout": {
+        "type": "object",
+        "description": "The Checkout session state.",
+        "required": [
+          "id",
+          "currency"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Unique session ID",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          },
+          "currency": {
+            "type": "string",
+            "description": "Three letter currency code",
+            "example": "USD"
+          }
+        }
+      },
+      "CheckoutCreateRequest": {
+        "type": "object",
+        "description": "Checkout creation payload",
+        "properties": {
+          "currency": {
+            "type": "string",
+            "description": "Three letter currency code"
+          }
+        }
+      },
+      "CheckoutUpdateRequest": {
+        "type": "object",
+        "description": "Checkout update payload",
+        "properties": {
+          "currency": {
+            "type": "string",
+            "description": "Three letter currency code"
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "description": "Common error structure",
+        "properties": {
+          "errorCode": {
+            "type": "string",
+            "description": "Error code string"
+          },
+          "message": {
+            "type": "string",
+            "description": "Error message explanation"
+          }
+        }
+      }
+    }
+  }
+}

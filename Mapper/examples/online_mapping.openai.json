@@ -1,0 +1,318 @@
+{
+  "ucp_version": "2026-01-23",
+  "provider": "openai",
+  "endpoint_mappings": [
+    {
+      "ucp_operation": "create_checkout",
+      "status": "mapped",
+      "confidence": 0.9,
+      "client_calls": [
+        {
+          "operationId": "createCart",
+          "method": "POST",
+          "path": "/api/cart",
+          "when": null
+        }
+      ],
+      "notes": null
+    }
+  ],
+  "field_mappings": [
+    {
+      "ucp_operation": "create_checkout",
+      "direction": "request",
+      "fields": [
+        {
+          "target_path": "$.line_items[*].item.id",
+          "source_path": "$.products[*].sku",
+          "transform": "rename",
+          "args": {},
+          "status": "mapped",
+          "confidence": 0.9,
+          "rationale": "sku is the product identifier"
+        },
+        {
+          "target_path": "$.line_items[*].quantity",
+          "source_path": "$.products[*].qty",
+          "transform": "rename",
+          "args": {},
+          "status": "mapped",
+          "confidence": 0.9,
+          "rationale": "qty matches the quantity of the item"
+        },
+        {
+          "target_path": "$.buyer.full_name",
+          "source_path": "$.customer.name",
+          "transform": "rename",
+          "args": {},
+          "status": "mapped",
+          "confidence": 0.8,
+          "rationale": "customer.name provides the full name of the buyer"
+        },
+        {
+          "target_path": "$.buyer.email",
+          "source_path": "$.customer.email_address",
+          "transform": "rename",
+          "args": {},
+          "status": "mapped",
+          "confidence": 0.9,
+          "rationale": "email_address matches the buyer's email"
+        },
+        {
+          "target_path": "$.currency",
+          "source_path": "$.currency_code",
+          "transform": "rename",
+          "args": {},
+          "status": "mapped",
+          "confidence": 0.9,
+          "rationale": "currency_code provides the ISO 4217 currency code"
+        },
+        {
+          "target_path": "$.line_items[*].item.title",
+          "source_path": null,
+          "transform": "default",
+          "args": {
+            "value": ""
+          },
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No equivalent field for product title in client API"
+        },
+        {
+          "target_path": "$.buyer.first_name",
+          "source_path": null,
+          "transform": "default",
+          "args": {
+            "value": ""
+          },
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No separate first name field in client API"
+        },
+        {
+          "target_path": "$.buyer.last_name",
+          "source_path": null,
+          "transform": "default",
+          "args": {
+            "value": ""
+          },
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No separate last name field in client API"
+        },
+        {
+          "target_path": "$.buyer.phone_number",
+          "source_path": null,
+          "transform": "default",
+          "args": {
+            "value": ""
+          },
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No phone number field in client API"
+        },
+        {
+          "target_path": "$.payment",
+          "source_path": null,
+          "transform": "default",
+          "args": {
+            "value": {}
+          },
+          "status": "unmapped",
+          "confidence": 0.0,
+          "rationale": "No payment information in client API"
+        }
+      ]
+    },
+    {
+      "ucp_operation": "create_checkout",
+      "direction": "response",
+      "fields": [
+        {
+          "target_path": "$.ucp",
+          "source_path": null,
+          "transform": "computed",
+          "args": {
+            "note": "server-generated UCP metadata"
+          },
+          "status": "computed",
+          "confidence": 1.0,
+          "rationale": "UCP metadata is server-generated"
+        },
+        {
+          "target_path": "$.id",
+          "source_path": null,
+          "transform": "computed",
+          "args": {
+            "note": "server-authoritative (rule R1)"
+          },
+          "status": "computed",
+          "confidence": 0.9,
+          "rationale": "cart_id serves as the unique identifier for the checkout session"
+        },
+        {
+          "target_path": "$.line_items[*].id",
+          "source_path": null,
+          "transform": "computed",
+          "args": {
+            "note": "server-authoritative (rule R1)"
+          },
+          "status": "computed",
+          "confidence": 0.8,
+          "rationale": "line_id corresponds to the line item id"
+        },
+        {
+          "target_path": "$.line_items[*].item.id",
+          "source_path": "$.products[*].sku",
+          "transform": "rename",
+          "args": {},
+          "status": "mapped",
+          "confidence": 0.9,
+          "rationale": "sku is the product identifier"
+        },
+        {
+          "target_path": "$.line_items[*].item.title",
+          "source_path": "$.products[*].name",
+          "transform": "rename",
+          "args": {},
+          "status": "mapped",
+          "confidence": 0.9,
+          "rationale": "name provides the product title"
+        },
+        {
+          "target_path": "$.line_items[*].item.price",
+          "source_path": "$.products[*].unit_price",
+          "transform": "cents_from_major",
+          "args": {},
+          "status": "mapped",
+          "confidence": 0.9,
+          "rationale": "unit_price is in major units, needs conversion to cents"
+        },
+        {
+          "target_path": "$.line_items[*].quantity",
+          "source_path": "$.products[*].qty",
+          "transform": "rename",
+          "args": {},
+          "status": "mapped",
+          "confidence": 0.9,
+          "rationale": "qty matches the quantity of the item"
+        },
+        {
+          "target_path": "$.currency",
+          "source_path": "$.currency_code",
+          "transform": "rename",
+          "args": {},
+          "status": "mapped",
+          "confidence": 0.9,
+          "rationale": "currency_code provides the ISO 4217 currency code"
+        },
+        {
+          "target_path": "$.totals",
+          "source_path": null,
+          "transform": "computed",
+          "args": {
+            "note": "derived from line items + fulfillment + discounts"
+          },
+          "status": "computed",
+          "confidence": 1.0,
+          "rationale": "totals are computed, not mapped"
+        },
+        {
+          "target_path": "$.status",
+          "source_path": "$.state",
+          "transform": "enum_map",
+          "args": {
+            "map": {
+              "open": "incomplete",
+              "locked": "requires_escalation",
+              "ordered": "completed",
+              "abandoned": "canceled"
+            }
+          },
+          "status": "mapped",
+          "confidence": 0.8,
+          "rationale": "state maps to checkout lifecycle status"
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "required_total": 20,
+    "mapped": 7,
+    "defaulted": 0,
+    "computed": 8,
+    "unmapped": 5
+  },
+  "review_queue": [
+    {
+      "ucp_operation": "create_checkout",
+      "direction": "request",
+      "target_path": "$.line_items[*].item.title",
+      "reason": "unmapped, no client source",
+      "confidence": 0.0
+    },
+    {
+      "ucp_operation": "create_checkout",
+      "direction": "request",
+      "target_path": "$.buyer.first_name",
+      "reason": "unmapped, no client source",
+      "confidence": 0.0
+    },
+    {
+      "ucp_operation": "create_checkout",
+      "direction": "request",
+      "target_path": "$.buyer.last_name",
+      "reason": "unmapped, no client source",
+      "confidence": 0.0
+    },
+    {
+      "ucp_operation": "create_checkout",
+      "direction": "request",
+      "target_path": "$.buyer.phone_number",
+      "reason": "unmapped, no client source",
+      "confidence": 0.0
+    },
+    {
+      "ucp_operation": "create_checkout",
+      "direction": "request",
+      "target_path": "$.payment",
+      "reason": "unmapped, no client source",
+      "confidence": 0.0
+    },
+    {
+      "ucp_operation": "create_checkout",
+      "direction": null,
+      "target_path": "$.line_items[*].item.title",
+      "reason": "required UCP field has no mapping (gap)",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "create_checkout",
+      "direction": null,
+      "target_path": "$.line_items[*].totals",
+      "reason": "required UCP field has no mapping (gap)",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "create_checkout",
+      "direction": null,
+      "target_path": "$.links",
+      "reason": "required UCP field has no mapping (gap)",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "create_checkout",
+      "direction": null,
+      "target_path": "$.line_items[*].totals[*].type",
+      "reason": "required UCP field has no mapping (gap)",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "create_checkout",
+      "direction": null,
+      "target_path": "$.line_items[*].totals[*].amount",
+      "reason": "required UCP field has no mapping (gap)",
+      "confidence": null
+    }
+  ]
+}
