@@ -13,6 +13,11 @@ the client's existing APIs with a UCP-compliant surface.
   correctness, units, and auditability.
 
 ## Docs
+**Integrating the UI / calling the API?** → [docs/UI-INTEGRATION.md](docs/UI-INTEGRATION.md) — the API
+reference for the UI developer (every endpoint, request/response shapes, panel mapping, error codes).
+Pair it with the Postman collection (`postman/UCP-Mapper.postman_collection.json`) and the live OpenAPI
+at `http://localhost:8000/docs`.
+
 **New here? Start with these three** (written for a reader new to the UCP gateway):
 - [docs/01-high-level-architecture.md](docs/01-high-level-architecture.md) — what it is, why it exists, the flow at a glance.
 - [docs/02-low-level-architecture.md](docs/02-low-level-architecture.md) — module-by-module design, data model, control flow.
