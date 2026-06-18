@@ -61,12 +61,17 @@ class LLMAdapter(abc.ABC):
     def _complete(self, messages: list[dict]) -> str:
         """Provider-specific call returning raw assistant text."""
 
-    def map(self, messages: list[dict]) -> dict[str, Any]:
-        """Call the model, extract + validate JSON, repair once on failure."""
+    def map(self, messages: list[dict], schema: dict[str, Any] | None = None) -> dict[str, Any]:
+        """Call the model, extract + validate JSON, repair once on failure.
+
+        ``schema`` overrides the default full-artifact schema (used for the per-phase calls in
+        the two-step pipeline, which return partial objects).
+        """
+        schema = schema or self._schema
         raw = self._complete(messages)
         try:
             obj = extract_json(raw)
-            self._validate(obj)
+            jsonschema.validate(obj, schema)
             return obj
         except (LLMError, jsonschema.ValidationError) as err:
             repair = messages + [
@@ -81,8 +86,5 @@ class LLMAdapter(abc.ABC):
             ]
             raw2 = self._complete(repair)
             obj = extract_json(raw2)
-            self._validate(obj)
+            jsonschema.validate(obj, schema)
             return obj
-
-    def _validate(self, obj: dict[str, Any]) -> None:
-        jsonschema.validate(obj, self._schema)

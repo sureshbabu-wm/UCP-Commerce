@@ -9,10 +9,11 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from mapper.orchestrator import run_mapping
 from tests.mock_adapter import MockAdapter
 
+version = sys.argv[1] if len(sys.argv) > 1 else "2026-01-23"
 sw = json.load(open("tests/fixtures/sample_client_swagger.json", encoding="utf-8"))
 m = run_mapping(
     client_swagger=sw,
-    ucp_version="2026-01-23",
+    ucp_version=version,
     provider="openai",
     api_key="unused",
     adapter=MockAdapter(api_key="unused"),

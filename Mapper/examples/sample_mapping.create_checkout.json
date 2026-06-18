@@ -1,5 +1,5 @@
 {
-  "ucp_version": "2026-01-23",
+  "ucp_version": "2026-04-08",
   "provider": "openai",
   "endpoint_mappings": [
     {
@@ -15,6 +15,90 @@
         }
       ],
       "notes": null
+    },
+    {
+      "ucp_operation": "get_checkout",
+      "status": "unmapped",
+      "confidence": 0.0,
+      "client_calls": [],
+      "notes": "mock: not mapped offline"
+    },
+    {
+      "ucp_operation": "update_checkout",
+      "status": "unmapped",
+      "confidence": 0.0,
+      "client_calls": [],
+      "notes": "mock: not mapped offline"
+    },
+    {
+      "ucp_operation": "complete_checkout",
+      "status": "unmapped",
+      "confidence": 0.0,
+      "client_calls": [],
+      "notes": "mock: not mapped offline"
+    },
+    {
+      "ucp_operation": "cancel_checkout",
+      "status": "unmapped",
+      "confidence": 0.0,
+      "client_calls": [],
+      "notes": "mock: not mapped offline"
+    },
+    {
+      "ucp_operation": "create_cart",
+      "status": "unmapped",
+      "confidence": 0.0,
+      "client_calls": [],
+      "notes": "mock: not mapped offline"
+    },
+    {
+      "ucp_operation": "get_cart",
+      "status": "unmapped",
+      "confidence": 0.0,
+      "client_calls": [],
+      "notes": "mock: not mapped offline"
+    },
+    {
+      "ucp_operation": "update_cart",
+      "status": "unmapped",
+      "confidence": 0.0,
+      "client_calls": [],
+      "notes": "mock: not mapped offline"
+    },
+    {
+      "ucp_operation": "cancel_cart",
+      "status": "unmapped",
+      "confidence": 0.0,
+      "client_calls": [],
+      "notes": "mock: not mapped offline"
+    },
+    {
+      "ucp_operation": "search_catalog",
+      "status": "unmapped",
+      "confidence": 0.0,
+      "client_calls": [],
+      "notes": "mock: not mapped offline"
+    },
+    {
+      "ucp_operation": "lookup_catalog",
+      "status": "unmapped",
+      "confidence": 0.0,
+      "client_calls": [],
+      "notes": "mock: not mapped offline"
+    },
+    {
+      "ucp_operation": "get_order",
+      "status": "unmapped",
+      "confidence": 0.0,
+      "client_calls": [],
+      "notes": "mock: not mapped offline"
+    },
+    {
+      "ucp_operation": "get_product",
+      "status": "unmapped",
+      "confidence": 0.0,
+      "client_calls": [],
+      "notes": "mock: not mapped offline"
     }
   ],
   "field_mappings": [
@@ -206,94 +290,17 @@
     }
   ],
   "coverage": {
-    "required_total": 44,
+    "required_total": 385,
     "mapped": 8,
     "defaulted": 3,
-    "computed": 12,
-    "unmapped": 21
+    "computed": 10,
+    "unmapped": 364
   },
   "review_queue": [
     {
       "ucp_operation": "create_checkout",
       "direction": null,
-      "target_path": "$.fulfillment.methods[*].groups[*].options[*].title",
-      "reason": "required UCP field has no mapping (gap)",
-      "confidence": null
-    },
-    {
-      "ucp_operation": "create_checkout",
-      "direction": null,
-      "target_path": "$.discounts.applied[*].amount",
-      "reason": "required UCP field has no mapping (gap)",
-      "confidence": null
-    },
-    {
-      "ucp_operation": "create_checkout",
-      "direction": null,
       "target_path": "$.payment.instruments[*].id",
-      "reason": "required UCP field has no mapping (gap)",
-      "confidence": null
-    },
-    {
-      "ucp_operation": "create_checkout",
-      "direction": null,
-      "target_path": "$.fulfillment.methods[*].groups[*].id",
-      "reason": "required UCP field has no mapping (gap)",
-      "confidence": null
-    },
-    {
-      "ucp_operation": "create_checkout",
-      "direction": null,
-      "target_path": "$.fulfillment.methods[*].groups[*].line_item_ids",
-      "reason": "required UCP field has no mapping (gap)",
-      "confidence": null
-    },
-    {
-      "ucp_operation": "create_checkout",
-      "direction": null,
-      "target_path": "$.fulfillment.methods[*].groups[*].options[*].totals[*].amount",
-      "reason": "required UCP field has no mapping (gap)",
-      "confidence": null
-    },
-    {
-      "ucp_operation": "create_checkout",
-      "direction": null,
-      "target_path": "$.fulfillment.methods[*].groups[*].options[*].totals[*].type",
-      "reason": "required UCP field has no mapping (gap)",
-      "confidence": null
-    },
-    {
-      "ucp_operation": "create_checkout",
-      "direction": null,
-      "target_path": "$.payment.instruments[*].handler_id",
-      "reason": "required UCP field has no mapping (gap)",
-      "confidence": null
-    },
-    {
-      "ucp_operation": "create_checkout",
-      "direction": null,
-      "target_path": "$.fulfillment.methods[*].line_item_ids",
-      "reason": "required UCP field has no mapping (gap)",
-      "confidence": null
-    },
-    {
-      "ucp_operation": "create_checkout",
-      "direction": null,
-      "target_path": "$.discounts.applied[*].allocations[*].amount",
-      "reason": "required UCP field has no mapping (gap)",
-      "confidence": null
-    },
-    {
-      "ucp_operation": "create_checkout",
-      "direction": null,
-      "target_path": "$.payment.instruments[*].credential.type",
-      "reason": "required UCP field has no mapping (gap)",
-      "confidence": null
-    },
-    {
-      "ucp_operation": "create_checkout",
-      "direction": null,
-      "target_path": "$.fulfillment.available_methods[*].type",
       "reason": "required UCP field has no mapping (gap)",
       "confidence": null
     },
@@ -307,41 +314,6 @@
     {
       "ucp_operation": "create_checkout",
       "direction": null,
-      "target_path": "$.fulfillment.methods[*].type",
-      "reason": "required UCP field has no mapping (gap)",
-      "confidence": null
-    },
-    {
-      "ucp_operation": "create_checkout",
-      "direction": null,
-      "target_path": "$.fulfillment.methods[*].groups[*].options[*].totals",
-      "reason": "required UCP field has no mapping (gap)",
-      "confidence": null
-    },
-    {
-      "ucp_operation": "create_checkout",
-      "direction": null,
-      "target_path": "$.fulfillment.methods[*].id",
-      "reason": "required UCP field has no mapping (gap)",
-      "confidence": null
-    },
-    {
-      "ucp_operation": "create_checkout",
-      "direction": null,
-      "target_path": "$.fulfillment.methods[*].groups[*].options[*].id",
-      "reason": "required UCP field has no mapping (gap)",
-      "confidence": null
-    },
-    {
-      "ucp_operation": "create_checkout",
-      "direction": null,
-      "target_path": "$.discounts.applied[*].title",
-      "reason": "required UCP field has no mapping (gap)",
-      "confidence": null
-    },
-    {
-      "ucp_operation": "create_checkout",
-      "direction": null,
       "target_path": "$.line_items[*].id",
       "reason": "required UCP field has no mapping (gap)",
       "confidence": null
@@ -349,15 +321,99 @@
     {
       "ucp_operation": "create_checkout",
       "direction": null,
-      "target_path": "$.fulfillment.available_methods[*].line_item_ids",
+      "target_path": "$.payment.instruments[*].handler_id",
       "reason": "required UCP field has no mapping (gap)",
       "confidence": null
     },
     {
       "ucp_operation": "create_checkout",
       "direction": null,
-      "target_path": "$.discounts.applied[*].allocations[*].path",
+      "target_path": "$.payment.instruments[*].credential.type",
       "reason": "required UCP field has no mapping (gap)",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "get_checkout",
+      "direction": null,
+      "target_path": "(endpoint)",
+      "reason": "no client operation maps to this UCP operation",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "update_checkout",
+      "direction": null,
+      "target_path": "(endpoint)",
+      "reason": "no client operation maps to this UCP operation",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "complete_checkout",
+      "direction": null,
+      "target_path": "(endpoint)",
+      "reason": "no client operation maps to this UCP operation",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "cancel_checkout",
+      "direction": null,
+      "target_path": "(endpoint)",
+      "reason": "no client operation maps to this UCP operation",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "create_cart",
+      "direction": null,
+      "target_path": "(endpoint)",
+      "reason": "no client operation maps to this UCP operation",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "get_cart",
+      "direction": null,
+      "target_path": "(endpoint)",
+      "reason": "no client operation maps to this UCP operation",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "update_cart",
+      "direction": null,
+      "target_path": "(endpoint)",
+      "reason": "no client operation maps to this UCP operation",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "cancel_cart",
+      "direction": null,
+      "target_path": "(endpoint)",
+      "reason": "no client operation maps to this UCP operation",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "search_catalog",
+      "direction": null,
+      "target_path": "(endpoint)",
+      "reason": "no client operation maps to this UCP operation",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "lookup_catalog",
+      "direction": null,
+      "target_path": "(endpoint)",
+      "reason": "no client operation maps to this UCP operation",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "get_order",
+      "direction": null,
+      "target_path": "(endpoint)",
+      "reason": "no client operation maps to this UCP operation",
+      "confidence": null
+    },
+    {
+      "ucp_operation": "get_product",
+      "direction": null,
+      "target_path": "(endpoint)",
+      "reason": "no client operation maps to this UCP operation",
       "confidence": null
     }
   ]

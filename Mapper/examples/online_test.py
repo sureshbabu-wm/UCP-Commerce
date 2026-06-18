@@ -40,11 +40,8 @@ def main() -> int:
     ap.add_argument("--provider", default="openai", choices=["openai", "claude", "gemini"])
     ap.add_argument("--model", default=None)
     ap.add_argument("--ucp-version", default="2026-01-23")
-    ap.add_argument("--operation", default="create_checkout", help="UCP operation to map")
-    ap.add_argument("--full", action="store_true", help="Map the full UCP surface (all operations)")
     ap.add_argument("--swagger", default=os.path.join(ROOT, "tests", "fixtures", "sample_client_swagger.json"))
     args = ap.parse_args()
-    operation_id = None if args.full else args.operation
 
     load_env_file(os.path.join(ROOT, ".env"))
     env_key = _ENV_KEYS[args.provider]
@@ -56,19 +53,16 @@ def main() -> int:
     swagger = json.load(open(args.swagger, encoding="utf-8"))
     adapter = get_adapter(args.provider, api_key, model=args.model) if args.model else None
 
-    scope = "full surface" if args.full else operation_id
-    print(f"Calling {args.provider} (model={args.model or 'default'}) for {scope} ...", file=sys.stderr)
+    print(f"Calling {args.provider} (model={args.model or 'default'}) for the full UCP surface ...", file=sys.stderr)
     mapping = run_mapping(
         client_swagger=swagger,
         ucp_version=args.ucp_version,
         provider=args.provider,
         api_key=api_key,
-        operation_id=operation_id,
         adapter=adapter,
     )
 
-    suffix = "full" if args.full else operation_id
-    out_path = os.path.join(ROOT, "examples", f"online_mapping.{args.provider}.{suffix}.json")
+    out_path = os.path.join(ROOT, "examples", f"online_mapping.{args.provider}.json")
     with open(out_path, "w", encoding="utf-8") as f:
         json.dump(mapping, f, indent=2)
 

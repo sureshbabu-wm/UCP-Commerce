@@ -16,7 +16,11 @@
         "required": ["ucp_operation", "status", "client_calls"],
         "additionalProperties": false,
         "properties": {
+          "id": { "type": "string", "description": "Stable row id for UI editing." },
+          "capability": { "type": "string", "description": "UI capability group, e.g. CHECKOUT." },
           "ucp_operation": { "type": "string", "description": "UCP operationId, e.g. create_checkout" },
+          "ucp_method": { "type": ["string", "null"] },
+          "ucp_path": { "type": ["string", "null"] },
           "status": { "type": "string", "enum": ["mapped", "partial", "unmapped"] },
           "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
           "client_calls": {
@@ -46,6 +50,7 @@
         "additionalProperties": false,
         "properties": {
           "ucp_operation": { "type": "string" },
+          "capability": { "type": "string", "description": "UI capability group, e.g. CHECKOUT." },
           "direction": { "type": "string", "enum": ["request", "response"] },
           "fields": {
             "type": "array",
@@ -54,6 +59,7 @@
               "required": ["target_path", "transform", "status"],
               "additionalProperties": false,
               "properties": {
+                "id": { "type": "string", "description": "Stable row id for UI editing." },
                 "target_path": { "type": "string", "description": "JSONPath on the UCP side" },
                 "source_path": { "type": ["string", "null"], "description": "JSONPath on the client side; null when computed/default/unmapped" },
                 "transform": {
@@ -79,7 +85,12 @@
         "mapped": { "type": "integer", "minimum": 0 },
         "defaulted": { "type": "integer", "minimum": 0 },
         "computed": { "type": "integer", "minimum": 0 },
-        "unmapped": { "type": "integer", "minimum": 0 }
+        "unmapped": { "type": "integer", "minimum": 0 },
+        "by_capability": {
+          "type": "object",
+          "description": "Per-capability coverage counts for the UI left panel.",
+          "additionalProperties": { "type": "object" }
+        }
       }
     },
     "review_queue": {

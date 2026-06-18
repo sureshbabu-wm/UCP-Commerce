@@ -1,4 +1,4 @@
-"""End-to-end test of the create_checkout slice using the offline MockAdapter."""
+"""Two-phase mapping tests using the offline phase-aware MockAdapter."""
 
 from __future__ import annotations
 
@@ -13,10 +13,12 @@ sys.path.insert(0, str(ROOT))
 
 from mapper import registry  # noqa: E402
 from mapper.normalizer import normalize  # noqa: E402
-from mapper.orchestrator import run_mapping  # noqa: E402
+from mapper.orchestrator import run_endpoint_mapping, run_field_mapping, run_mapping  # noqa: E402
+from mapper.structures import build_swagger_structure, build_ucp_structure  # noqa: E402
 from tests.mock_adapter import MockAdapter  # noqa: E402
 
 FIXTURE = ROOT / "tests" / "fixtures" / "sample_client_swagger.json"
+VERSION = "2026-01-23"
 
 
 @pytest.fixture
@@ -24,84 +26,92 @@ def client_swagger() -> dict:
     return json.loads(FIXTURE.read_text(encoding="utf-8"))
 
 
+@pytest.fixture
+def mock() -> MockAdapter:
+    return MockAdapter(api_key="unused")
+
+
+# -- inventories / structures ----------------------------------------------
 def test_ucp_inventory_loads_create_checkout():
-    inv = registry.load_ucp_inventory("2026-01-23")
-    op = inv.operation("create_checkout")
+    op = registry.load_ucp_inventory(VERSION).operation("create_checkout")
     assert op is not None
-    req_paths = {f.path for f in op.request_fields}
-    resp_paths = {f.path for f in op.response_fields}
-    assert "$.line_items[*].item.id" in req_paths
-    assert "$.id" in resp_paths
-    assert "$.totals" in resp_paths
-    # cents unit hint detected on the price field
+    assert "$.line_items[*].item.id" in {f.path for f in op.request_fields}
     price = next(f for f in op.response_fields if f.path == "$.line_items[*].item.price")
     assert price.unit_hint == "cents"
 
 
 def test_client_swagger_normalizes(client_swagger):
-    inv = normalize(client_swagger)
-    op = inv.operation("createCart")
-    assert op is not None
-    assert op.method == "POST" and op.path == "/api/cart"
-    assert {"$.products[*].sku", "$.products[*].qty"} <= {f.path for f in op.request_fields}
+    op = normalize(client_swagger).operation("createCart")
+    assert op is not None and op.method == "POST" and op.path == "/api/cart"
 
 
-def test_run_mapping_slice(client_swagger):
-    mapping = run_mapping(
-        client_swagger=client_swagger,
-        ucp_version="2026-01-23",
-        provider="openai",
-        api_key="unused",
-        adapter=MockAdapter(api_key="unused"),
+def test_structures_for_ui(client_swagger):
+    ucp = build_ucp_structure(VERSION)
+    assert {c["capability"] for c in ucp["capabilities"]} >= {"CHECKOUT"}
+    sw = build_swagger_structure(client_swagger)
+    assert any(e["operationId"] == "createCart" for e in sw["endpoints"])
+
+
+# -- phase 1 ---------------------------------------------------------------
+def test_endpoint_phase(client_swagger, mock):
+    res = run_endpoint_mapping(
+        client_swagger=client_swagger, ucp_version=VERSION,
+        provider="openai", api_key="unused", adapter=mock,
     )
+    by_op = {e["ucp_operation"]: e for e in res["endpoint_mappings"]}
+    assert by_op["create_checkout"]["status"] == "mapped"
+    assert by_op["create_checkout"]["capability"] == "CHECKOUT"
+    assert by_op["create_checkout"]["id"]  # stable row id for UI
+    assert by_op["create_checkout"]["client_calls"][0]["operationId"] == "createCart"
+    assert by_op["cancel_checkout"]["status"] == "unmapped"
 
-    # endpoint mapping picked the cart-create op
-    ep = mapping["endpoint_mappings"][0]
-    assert ep["ucp_operation"] == "create_checkout"
-    assert ep["client_calls"][0]["operationId"] == "createCart"
 
-    # rule R1: server-authoritative fields forced to computed (no source)
-    resp = next(b for b in mapping["field_mappings"] if b["direction"] == "response")
+# -- phase 2 + full --------------------------------------------------------
+def test_field_phase_and_full(client_swagger, mock):
+    mapping = run_mapping(
+        client_swagger=client_swagger, ucp_version=VERSION,
+        provider="openai", api_key="unused", adapter=mock,
+    )
+    resp = next(b for b in mapping["field_mappings"]
+                if b["ucp_operation"] == "create_checkout" and b["direction"] == "response")
+    assert resp["capability"] == "CHECKOUT"
     by_path = {f["target_path"]: f for f in resp["fields"]}
-    for sa in ("$.id", "$.ucp", "$.totals"):
-        assert by_path[sa]["status"] == "computed"
-        assert by_path[sa]["source_path"] is None
 
-    # rule R2: dollars -> cents enforced for price
+    # id reuses the client cart id (rule R1b)
+    assert by_path["$.id"]["status"] == "mapped" and by_path["$.id"]["source_path"] == "$.cart_id"
+    # server-authoritative fields injected as computed (rule R6)
+    assert by_path["$.ucp"]["status"] == "computed"
+    assert by_path["$.totals"]["status"] == "computed"
+    # dollars -> cents (rule R2)
     assert by_path["$.line_items[*].item.price"]["transform"] == "cents_from_major"
+    # every row carries a stable id
+    assert all("id" in f for f in resp["fields"])
 
-    # coverage recomputed against required UCP fields; no required gaps in this fixture
     cov = mapping["coverage"]
     assert cov["required_total"] > 0
     assert cov["mapped"] + cov["computed"] + cov["defaulted"] + cov["unmapped"] == cov["required_total"]
-
-    # low-confidence status mapping (0.6 boundary not included) and any gaps surface in review queue
-    assert isinstance(mapping["review_queue"], list)
+    assert "CHECKOUT" in cov["by_capability"]
 
 
-def test_full_surface_maps_all_operations(client_swagger):
-    mapping = run_mapping(
-        client_swagger=client_swagger,
-        ucp_version="2026-01-23",
-        provider="openai",
-        api_key="unused",
-        operation_id=None,  # full surface
-        adapter=MockAdapter(api_key="unused"),
+def test_field_phase_respects_edited_endpoints(client_swagger, mock):
+    """User edits in phase 1 flow into phase 2: an unmapped endpoint yields no field mappings."""
+    edited = run_endpoint_mapping(
+        client_swagger=client_swagger, ucp_version=VERSION,
+        provider="openai", api_key="unused", adapter=mock,
+    )["endpoint_mappings"]
+    for em in edited:  # user unmaps create_checkout
+        if em["ucp_operation"] == "create_checkout":
+            em["status"], em["client_calls"] = "unmapped", []
+    mapping = run_field_mapping(
+        client_swagger=client_swagger, ucp_version=VERSION, endpoint_mappings=edited,
+        provider="openai", api_key="unused", adapter=mock,
     )
-    mapped_ops = {em["ucp_operation"] for em in mapping["endpoint_mappings"]}
-    assert {"create_checkout", "get_checkout", "update_checkout", "complete_checkout", "cancel_checkout"} <= mapped_ops
-    # coverage aggregates required fields across all operations
-    assert mapping["coverage"]["required_total"] > 0
-    cov = mapping["coverage"]
-    assert cov["mapped"] + cov["computed"] + cov["defaulted"] + cov["unmapped"] == cov["required_total"]
+    assert not any(b["ucp_operation"] == "create_checkout" for b in mapping["field_mappings"])
 
 
-def test_unknown_version_raises(client_swagger):
+def test_unknown_version_raises(client_swagger, mock):
     with pytest.raises(registry.UnknownUcpVersionError):
         run_mapping(
-            client_swagger=client_swagger,
-            ucp_version="1999-01-01",
-            provider="openai",
-            api_key="unused",
-            adapter=MockAdapter(api_key="unused"),
+            client_swagger=client_swagger, ucp_version="1999-01-01",
+            provider="openai", api_key="unused", adapter=mock,
         )

@@ -1,0 +1,216 @@
+{
+  "info": {
+    "_postman_id": "ucp-mapper-collection-0001",
+    "name": "UCP Mapper API",
+    "description": "Test the UCP Mapper service.\n\nSet the `api_key` collection variable to your real OpenAI key before running the mapping requests. `/versions`, `/ucp/.../structure` and `/swagger/parse` need no key.\n\nRecommended order: 1) Versions 2) UCP Structure 3) Parse Swagger 4) Endpoint Mapping (saves endpoint_mappings) 5) Field Mapping (reuses them) \u2014 or just run Full Mapping.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000"
+    },
+    {
+      "key": "ucp_version",
+      "value": "2026-04-08"
+    },
+    {
+      "key": "provider",
+      "value": "openai"
+    },
+    {
+      "key": "api_key",
+      "value": ""
+    },
+    {
+      "key": "endpoint_mappings",
+      "value": "[]"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Versions",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/versions",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "versions"
+          ]
+        },
+        "description": "List vendored UCP versions. No key needed."
+      },
+      "response": []
+    },
+    {
+      "name": "2. UCP Structure",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/ucp/{{ucp_version}}/structure",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "ucp",
+            "{{ucp_version}}",
+            "structure"
+          ]
+        },
+        "description": "UCP capabilities -> operations + fields (left panel + dropdowns). No key needed."
+      },
+      "response": []
+    },
+    {
+      "name": "3. Parse Swagger",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"swagger\": {\n    \"openapi\": \"3.0.0\",\n    \"info\": {\n      \"title\": \"Acme Shop API\",\n      \"version\": \"1.0.0\",\n      \"description\": \"Acme's existing storefront API (non-UCP).\"\n    },\n    \"paths\": {\n      \"/api/cart\": {\n        \"post\": {\n          \"operationId\": \"createCart\",\n          \"summary\": \"Create a shopping cart with products\",\n          \"requestBody\": {\n            \"required\": true,\n            \"content\": {\n              \"application/json\": {\n                \"schema\": {\n                  \"$ref\": \"#/components/schemas/NewCart\"\n                }\n              }\n            }\n          },\n          \"responses\": {\n            \"200\": {\n              \"description\": \"Cart created\",\n              \"content\": {\n                \"application/json\": {\n                  \"schema\": {\n                    \"$ref\": \"#/components/schemas/Cart\"\n                  }\n                }\n              }\n            }\n          }\n        }\n      },\n      \"/api/cart/{cartId}\": {\n        \"get\": {\n          \"operationId\": \"getCart\",\n          \"summary\": \"Fetch a cart\",\n          \"responses\": {\n            \"200\": {\n              \"description\": \"OK\",\n              \"content\": {\n                \"application/json\": {\n                  \"schema\": {\n                    \"$ref\": \"#/components/schemas/Cart\"\n                  }\n                }\n              }\n            }\n          }\n        }\n      }\n    },\n    \"components\": {\n      \"schemas\": {\n        \"NewCart\": {\n          \"type\": \"object\",\n          \"required\": [\n            \"products\"\n          ],\n          \"properties\": {\n            \"products\": {\n              \"type\": \"array\",\n              \"description\": \"Products to add to the cart.\",\n              \"items\": {\n                \"type\": \"object\",\n                \"required\": [\n                  \"sku\",\n                  \"qty\"\n                ],\n                \"properties\": {\n                  \"sku\": {\n                    \"type\": \"string\",\n                    \"description\": \"Stock keeping unit / product code.\"\n                  },\n                  \"qty\": {\n                    \"type\": \"integer\",\n                    \"description\": \"How many units.\"\n                  }\n                }\n              }\n            },\n            \"customer\": {\n              \"type\": \"object\",\n              \"description\": \"The shopper.\",\n              \"properties\": {\n                \"name\": {\n                  \"type\": \"string\",\n                  \"description\": \"Customer full name.\"\n                },\n                \"email_address\": {\n                  \"type\": \"string\",\n                  \"description\": \"Customer email.\"\n                }\n              }\n            },\n            \"currency_code\": {\n              \"type\": \"string\",\n              \"description\": \"Three-letter currency code.\"\n            }\n          }\n        },\n        \"Cart\": {\n          \"type\": \"object\",\n          \"properties\": {\n            \"cart_id\": {\n              \"type\": \"string\",\n              \"description\": \"Unique cart identifier.\"\n            },\n            \"state\": {\n              \"type\": \"string\",\n              \"description\": \"Cart state.\",\n              \"enum\": [\n                \"open\",\n                \"locked\",\n                \"ordered\",\n                \"abandoned\"\n              ]\n            },\n            \"currency_code\": {\n              \"type\": \"string\"\n            },\n            \"products\": {\n              \"type\": \"array\",\n              \"items\": {\n                \"type\": \"object\",\n                \"properties\": {\n                  \"line_id\": {\n                    \"type\": \"string\"\n                  },\n                  \"sku\": {\n                    \"type\": \"string\"\n                  },\n                  \"name\": {\n                    \"type\": \"string\",\n                    \"description\": \"Product name.\"\n                  },\n                  \"unit_price\": {\n                    \"type\": \"number\",\n                    \"description\": \"Unit price in dollars (major units).\"\n                  },\n                  \"qty\": {\n                    \"type\": \"integer\"\n                  }\n                }\n              }\n            },\n            \"grand_total\": {\n              \"type\": \"number\",\n              \"description\": \"Order grand total in dollars.\"\n            }\n          }\n        }\n      }\n    }\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/swagger/parse",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "swagger",
+            "parse"
+          ]
+        },
+        "description": "Parse the client swagger into endpoints + fields (right panel). No key needed."
+      },
+      "response": []
+    },
+    {
+      "name": "4a. Endpoint Mapping (phase 1)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"client_swagger\": {\n    \"openapi\": \"3.0.0\",\n    \"info\": {\n      \"title\": \"Acme Shop API\",\n      \"version\": \"1.0.0\",\n      \"description\": \"Acme's existing storefront API (non-UCP).\"\n    },\n    \"paths\": {\n      \"/api/cart\": {\n        \"post\": {\n          \"operationId\": \"createCart\",\n          \"summary\": \"Create a shopping cart with products\",\n          \"requestBody\": {\n            \"required\": true,\n            \"content\": {\n              \"application/json\": {\n                \"schema\": {\n                  \"$ref\": \"#/components/schemas/NewCart\"\n                }\n              }\n            }\n          },\n          \"responses\": {\n            \"200\": {\n              \"description\": \"Cart created\",\n              \"content\": {\n                \"application/json\": {\n                  \"schema\": {\n                    \"$ref\": \"#/components/schemas/Cart\"\n                  }\n                }\n              }\n            }\n          }\n        }\n      },\n      \"/api/cart/{cartId}\": {\n        \"get\": {\n          \"operationId\": \"getCart\",\n          \"summary\": \"Fetch a cart\",\n          \"responses\": {\n            \"200\": {\n              \"description\": \"OK\",\n              \"content\": {\n                \"application/json\": {\n                  \"schema\": {\n                    \"$ref\": \"#/components/schemas/Cart\"\n                  }\n                }\n              }\n            }\n          }\n        }\n      }\n    },\n    \"components\": {\n      \"schemas\": {\n        \"NewCart\": {\n          \"type\": \"object\",\n          \"required\": [\n            \"products\"\n          ],\n          \"properties\": {\n            \"products\": {\n              \"type\": \"array\",\n              \"description\": \"Products to add to the cart.\",\n              \"items\": {\n                \"type\": \"object\",\n                \"required\": [\n                  \"sku\",\n                  \"qty\"\n                ],\n                \"properties\": {\n                  \"sku\": {\n                    \"type\": \"string\",\n                    \"description\": \"Stock keeping unit / product code.\"\n                  },\n                  \"qty\": {\n                    \"type\": \"integer\",\n                    \"description\": \"How many units.\"\n                  }\n                }\n              }\n            },\n            \"customer\": {\n              \"type\": \"object\",\n              \"description\": \"The shopper.\",\n              \"properties\": {\n                \"name\": {\n                  \"type\": \"string\",\n                  \"description\": \"Customer full name.\"\n                },\n                \"email_address\": {\n                  \"type\": \"string\",\n                  \"description\": \"Customer email.\"\n                }\n              }\n            },\n            \"currency_code\": {\n              \"type\": \"string\",\n              \"description\": \"Three-letter currency code.\"\n            }\n          }\n        },\n        \"Cart\": {\n          \"type\": \"object\",\n          \"properties\": {\n            \"cart_id\": {\n              \"type\": \"string\",\n              \"description\": \"Unique cart identifier.\"\n            },\n            \"state\": {\n              \"type\": \"string\",\n              \"description\": \"Cart state.\",\n              \"enum\": [\n                \"open\",\n                \"locked\",\n                \"ordered\",\n                \"abandoned\"\n              ]\n            },\n            \"currency_code\": {\n              \"type\": \"string\"\n            },\n            \"products\": {\n              \"type\": \"array\",\n              \"items\": {\n                \"type\": \"object\",\n                \"properties\": {\n                  \"line_id\": {\n                    \"type\": \"string\"\n                  },\n                  \"sku\": {\n                    \"type\": \"string\"\n                  },\n                  \"name\": {\n                    \"type\": \"string\",\n                    \"description\": \"Product name.\"\n                  },\n                  \"unit_price\": {\n                    \"type\": \"number\",\n                    \"description\": \"Unit price in dollars (major units).\"\n                  },\n                  \"qty\": {\n                    \"type\": \"integer\"\n                  }\n                }\n              }\n            },\n            \"grand_total\": {\n              \"type\": \"number\",\n              \"description\": \"Order grand total in dollars.\"\n            }\n          }\n        }\n      }\n    }\n  },\n  \"ucp_version\": \"{{ucp_version}}\",\n  \"provider\": \"{{provider}}\",\n  \"api_key\": \"{{api_key}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/map/endpoints",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "map",
+            "endpoints"
+          ]
+        },
+        "description": "Phase 1: map UCP operations to client endpoints (cheap). Saves endpoint_mappings into a collection variable for the next step. Needs api_key."
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Save phase-1 endpoint_mappings so '2b. Field Mapping' can reuse (and you can edit) them",
+              "if (pm.response.code === 200) {",
+              "  pm.collectionVariables.set('endpoint_mappings', JSON.stringify(pm.response.json().endpoint_mappings));",
+              "  console.log('Saved endpoint_mappings for the field-mapping step.');",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "4b. Field Mapping (phase 2)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"client_swagger\": {\n    \"openapi\": \"3.0.0\",\n    \"info\": {\n      \"title\": \"Acme Shop API\",\n      \"version\": \"1.0.0\",\n      \"description\": \"Acme's existing storefront API (non-UCP).\"\n    },\n    \"paths\": {\n      \"/api/cart\": {\n        \"post\": {\n          \"operationId\": \"createCart\",\n          \"summary\": \"Create a shopping cart with products\",\n          \"requestBody\": {\n            \"required\": true,\n            \"content\": {\n              \"application/json\": {\n                \"schema\": {\n                  \"$ref\": \"#/components/schemas/NewCart\"\n                }\n              }\n            }\n          },\n          \"responses\": {\n            \"200\": {\n              \"description\": \"Cart created\",\n              \"content\": {\n                \"application/json\": {\n                  \"schema\": {\n                    \"$ref\": \"#/components/schemas/Cart\"\n                  }\n                }\n              }\n            }\n          }\n        }\n      },\n      \"/api/cart/{cartId}\": {\n        \"get\": {\n          \"operationId\": \"getCart\",\n          \"summary\": \"Fetch a cart\",\n          \"responses\": {\n            \"200\": {\n              \"description\": \"OK\",\n              \"content\": {\n                \"application/json\": {\n                  \"schema\": {\n                    \"$ref\": \"#/components/schemas/Cart\"\n                  }\n                }\n              }\n            }\n          }\n        }\n      }\n    },\n    \"components\": {\n      \"schemas\": {\n        \"NewCart\": {\n          \"type\": \"object\",\n          \"required\": [\n            \"products\"\n          ],\n          \"properties\": {\n            \"products\": {\n              \"type\": \"array\",\n              \"description\": \"Products to add to the cart.\",\n              \"items\": {\n                \"type\": \"object\",\n                \"required\": [\n                  \"sku\",\n                  \"qty\"\n                ],\n                \"properties\": {\n                  \"sku\": {\n                    \"type\": \"string\",\n                    \"description\": \"Stock keeping unit / product code.\"\n                  },\n                  \"qty\": {\n                    \"type\": \"integer\",\n                    \"description\": \"How many units.\"\n                  }\n                }\n              }\n            },\n            \"customer\": {\n              \"type\": \"object\",\n              \"description\": \"The shopper.\",\n              \"properties\": {\n                \"name\": {\n                  \"type\": \"string\",\n                  \"description\": \"Customer full name.\"\n                },\n                \"email_address\": {\n                  \"type\": \"string\",\n                  \"description\": \"Customer email.\"\n                }\n              }\n            },\n            \"currency_code\": {\n              \"type\": \"string\",\n              \"description\": \"Three-letter currency code.\"\n            }\n          }\n        },\n        \"Cart\": {\n          \"type\": \"object\",\n          \"properties\": {\n            \"cart_id\": {\n              \"type\": \"string\",\n              \"description\": \"Unique cart identifier.\"\n            },\n            \"state\": {\n              \"type\": \"string\",\n              \"description\": \"Cart state.\",\n              \"enum\": [\n                \"open\",\n                \"locked\",\n                \"ordered\",\n                \"abandoned\"\n              ]\n            },\n            \"currency_code\": {\n              \"type\": \"string\"\n            },\n            \"products\": {\n              \"type\": \"array\",\n              \"items\": {\n                \"type\": \"object\",\n                \"properties\": {\n                  \"line_id\": {\n                    \"type\": \"string\"\n                  },\n                  \"sku\": {\n                    \"type\": \"string\"\n                  },\n                  \"name\": {\n                    \"type\": \"string\",\n                    \"description\": \"Product name.\"\n                  },\n                  \"unit_price\": {\n                    \"type\": \"number\",\n                    \"description\": \"Unit price in dollars (major units).\"\n                  },\n                  \"qty\": {\n                    \"type\": \"integer\"\n                  }\n                }\n              }\n            },\n            \"grand_total\": {\n              \"type\": \"number\",\n              \"description\": \"Order grand total in dollars.\"\n            }\n          }\n        }\n      }\n    }\n  },\n  \"ucp_version\": \"{{ucp_version}}\",\n  \"provider\": \"{{provider}}\",\n  \"api_key\": \"{{api_key}}\",\n  \"endpoint_mappings\": {{endpoint_mappings}}\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/map/fields",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "map",
+            "fields"
+          ]
+        },
+        "description": "Phase 2: field mappings for the (possibly edited) endpoint_mappings from phase 1. Run 4a first. Needs api_key."
+      },
+      "response": []
+    },
+    {
+      "name": "5. Full Mapping (phase 1 + 2)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"client_swagger\": {\n    \"openapi\": \"3.0.0\",\n    \"info\": {\n      \"title\": \"Acme Shop API\",\n      \"version\": \"1.0.0\",\n      \"description\": \"Acme's existing storefront API (non-UCP).\"\n    },\n    \"paths\": {\n      \"/api/cart\": {\n        \"post\": {\n          \"operationId\": \"createCart\",\n          \"summary\": \"Create a shopping cart with products\",\n          \"requestBody\": {\n            \"required\": true,\n            \"content\": {\n              \"application/json\": {\n                \"schema\": {\n                  \"$ref\": \"#/components/schemas/NewCart\"\n                }\n              }\n            }\n          },\n          \"responses\": {\n            \"200\": {\n              \"description\": \"Cart created\",\n              \"content\": {\n                \"application/json\": {\n                  \"schema\": {\n                    \"$ref\": \"#/components/schemas/Cart\"\n                  }\n                }\n              }\n            }\n          }\n        }\n      },\n      \"/api/cart/{cartId}\": {\n        \"get\": {\n          \"operationId\": \"getCart\",\n          \"summary\": \"Fetch a cart\",\n          \"responses\": {\n            \"200\": {\n              \"description\": \"OK\",\n              \"content\": {\n                \"application/json\": {\n                  \"schema\": {\n                    \"$ref\": \"#/components/schemas/Cart\"\n                  }\n                }\n              }\n            }\n          }\n        }\n      }\n    },\n    \"components\": {\n      \"schemas\": {\n        \"NewCart\": {\n          \"type\": \"object\",\n          \"required\": [\n            \"products\"\n          ],\n          \"properties\": {\n            \"products\": {\n              \"type\": \"array\",\n              \"description\": \"Products to add to the cart.\",\n              \"items\": {\n                \"type\": \"object\",\n                \"required\": [\n                  \"sku\",\n                  \"qty\"\n                ],\n                \"properties\": {\n                  \"sku\": {\n                    \"type\": \"string\",\n                    \"description\": \"Stock keeping unit / product code.\"\n                  },\n                  \"qty\": {\n                    \"type\": \"integer\",\n                    \"description\": \"How many units.\"\n                  }\n                }\n              }\n            },\n            \"customer\": {\n              \"type\": \"object\",\n              \"description\": \"The shopper.\",\n              \"properties\": {\n                \"name\": {\n                  \"type\": \"string\",\n                  \"description\": \"Customer full name.\"\n                },\n                \"email_address\": {\n                  \"type\": \"string\",\n                  \"description\": \"Customer email.\"\n                }\n              }\n            },\n            \"currency_code\": {\n              \"type\": \"string\",\n              \"description\": \"Three-letter currency code.\"\n            }\n          }\n        },\n        \"Cart\": {\n          \"type\": \"object\",\n          \"properties\": {\n            \"cart_id\": {\n              \"type\": \"string\",\n              \"description\": \"Unique cart identifier.\"\n            },\n            \"state\": {\n              \"type\": \"string\",\n              \"description\": \"Cart state.\",\n              \"enum\": [\n                \"open\",\n                \"locked\",\n                \"ordered\",\n                \"abandoned\"\n              ]\n            },\n            \"currency_code\": {\n              \"type\": \"string\"\n            },\n            \"products\": {\n              \"type\": \"array\",\n              \"items\": {\n                \"type\": \"object\",\n                \"properties\": {\n                  \"line_id\": {\n                    \"type\": \"string\"\n                  },\n                  \"sku\": {\n                    \"type\": \"string\"\n                  },\n                  \"name\": {\n                    \"type\": \"string\",\n                    \"description\": \"Product name.\"\n                  },\n                  \"unit_price\": {\n                    \"type\": \"number\",\n                    \"description\": \"Unit price in dollars (major units).\"\n                  },\n                  \"qty\": {\n                    \"type\": \"integer\"\n                  }\n                }\n              }\n            },\n            \"grand_total\": {\n              \"type\": \"number\",\n              \"description\": \"Order grand total in dollars.\"\n            }\n          }\n        }\n      }\n    }\n  },\n  \"ucp_version\": \"{{ucp_version}}\",\n  \"provider\": \"{{provider}}\",\n  \"api_key\": \"{{api_key}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/map",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "map"
+          ]
+        },
+        "description": "Runs both phases and returns the full artifact. Needs api_key."
+      },
+      "response": []
+    }
+  ]
+}
