@@ -115,11 +115,16 @@ the validator will recompute and correct them).
 
 ## 6. Method (think internally, then emit only the JSON)
 
-1. For each UCP operation, shortlist candidate client operations by method/path/summary, then pick by
-   request/response field overlap.
-2. Walk the UCP target fields (request, then response). For each, find the best client source; assign
-   transform + status + confidence + rationale.
+1. **Endpoint Resolution Logic**: For each UCP operation, determine the best client operation(s) using this sequence:
+   - **Step A (Name/ID Match)**: Search for an exact or near-exact name or operationId match (e.g. `create_checkout` matches `createCheckout` or `create_checkout_session`).
+   - **Step B (Semantic/Relevant Name Match)**: If no exact match exists, search for relevant names or synonyms (e.g. `create_checkout` maps to `createCart`, `POST /cart`, or `checkout`).
+   - **Step C (Signature/Overlap Match)**: Evaluate the HTTP method, summary descriptions, and request/response field overlap to confirm the mapping.
+2. **Field Resolution Logic**: Walk the UCP target fields (request, then response) and match them to client fields:
+   - **Step A (Name Match)**: Check for matching names (e.g. `currency` -> `currency`, `qty` -> `quantity`).
+   - **Step B (Semantic/Description Match)**: Check for fields with similar descriptions, comments, or synonyms (e.g. `item.id` -> `sku`, `full_name` -> `customer.name`).
+   - **Step C (Transform Assignment)**: Map the source path, assign the correct transform from the vocabulary, and document the rationale and confidence.
 3. Apply obvious conventions (cents for money fields, RFC 3339 for dates, enum_map for status).
 4. Add every `< 0.6` field and every `unmapped` required field to `review_queue`.
 5. Emit the single JSON object. No surrounding text.
+
 </content>
