@@ -1,5 +1,14 @@
 # 1. High-Level Architecture & Flow
 
+> **⚠️ Current state (v0.3) — read first.** The output contract described here
+> (`endpoint_mappings` / `field_mappings` / `coverage` / `review_queue`) is still accurate, but the
+> flow has evolved: mapping is now **two-phase** — `POST /map/endpoints` (cheap routing) → `POST
+> /map/fields` (parallel field mapping), with `POST /map` chaining both. There are also **structure
+> endpoints** (`/ucp/{version}/structure`, `/swagger/parse`), output is enriched with **capability**
+> groups + row **`id`s** + `coverage.by_capability`, the default version is **`2026-04-08`**
+> (catalog/cart/order), and the model is **`gpt-4o`**. Authoritative current docs:
+> [README](../README.md) + [UI-INTEGRATION.md](UI-INTEGRATION.md). Below is the conceptual narrative.
+
 > **Audience:** someone new to the UCP Mapper / gateway. This doc explains *what* it is, *why* it
 > exists, and *how* the pieces fit — no code. For module internals see
 > [02-low-level-architecture.md](02-low-level-architecture.md); for a hands-on run see

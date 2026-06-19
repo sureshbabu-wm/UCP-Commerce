@@ -1,0 +1,1516 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Business Catalog Service \u2014 QuickMobile",
+    "description": "Business-facing Catalog REST API for QuickMobile. Generated from resolved-ucp.json. Identical structure to UCP catalog-swagger.yaml. Field/path names are business-relevant (renamed) but structure is unchanged. REST binding: flat request body, X-Client-Id header (replaces UCP-Agent). Three operations: searchProducts (POST /products/search), batchFetchProducts (POST /products/batch), getProductDetail (POST /products/detail).\nField name mapping (UCP \u2192 Business):\n  query         \u2192 keyword\n  ids           \u2192 itemIds\n  id            \u2192 itemId\n  context       \u2192 buyerContext\n  address_country \u2192 country\n  language      \u2192 preferredLanguage\n  currency      \u2192 preferredCurrency\n  eligibility   \u2192 loyaltyTiers\n  filters       \u2192 productFilters\n  categories    \u2192 categoryIds\n  price         \u2192 priceRange  [structure unchanged: {min:int, max:int}]\n  pagination    \u2192 page\n  has_next_page \u2192 hasNextPage\n  total_count   \u2192 totalCount\n  list_price_range \u2192 originalPriceRange\n  media         \u2192 images\n  alt_text      \u2192 altText\n  options       \u2192 attributes\n  values        \u2192 choices\n  label         \u2192 displayName\n  selected      \u2192 selectedAttributes\n  variants      \u2192 skus\n  rating        \u2192 reviewSummary\n  scale_max     \u2192 scaleMax\n  scale_min     \u2192 scaleMin\n  inputs        \u2192 matchedInputs\n  available     \u2192 inStock\n  exists        \u2192 inCatalog\n",
+    "version": "2026-04-08T00:00:00.000Z",
+    "contact": {
+      "name": "QuickMobile API Team"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://quickmobile.onwavemaker.com",
+      "description": "Production gateway"
+    },
+    {
+      "url": "http://localhost:3002",
+      "description": "Local mock server (Mockoon)"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Products",
+      "description": "Product catalog search and retrieval"
+    }
+  ],
+  "paths": {
+    "/products/search": {
+      "post": {
+        "tags": [
+          "Products"
+        ],
+        "operationId": "searchProducts",
+        "summary": "Search the product catalog",
+        "description": "Search for products using keyword and optional filters. Results ordered by relevance. Supports cursor-based pagination. Structure identical to UCP catalog search \u2014 only field names differ.\n",
+        "parameters": [
+          {
+            "name": "X-Client-Id",
+            "in": "header",
+            "required": true,
+            "description": "Client application identifier",
+            "schema": {
+              "type": "string"
+            },
+            "example": "qm-storefront-v1"
+          },
+          {
+            "name": "Request-Id",
+            "in": "header",
+            "required": false,
+            "description": "UUID for request tracing",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchProductsRequest"
+              },
+              "example": {
+                "keyword": "Samsung Galaxy",
+                "buyerContext": {
+                  "country": "US",
+                  "preferredCurrency": "USD",
+                  "preferredLanguage": "en"
+                },
+                "productFilters": {
+                  "categoryIds": [
+                    "cat_smartphones"
+                  ],
+                  "priceRange": {
+                    "min": 10000,
+                    "max": 150000
+                  }
+                },
+                "page": {
+                  "limit": 10
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Search results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchProductsResponse"
+                },
+                "example": {
+                  "apiVersion": "2026-04-08",
+                  "products": [
+                    {
+                      "id": "prod_samsung_s25",
+                      "slug": "samsung-galaxy-s25",
+                      "name": "Samsung Galaxy S25",
+                      "description": {
+                        "plain": "Samsung flagship with Snapdragon 8 Elite, 50MP camera, 4000mAh battery.",
+                        "html": "<p>Samsung flagship with Snapdragon 8 Elite, 50MP camera, 4000mAh battery.</p>"
+                      },
+                      "productUrl": "https://quickmobile.onwavemaker.com/devices/samsung-galaxy-s25",
+                      "categories": [
+                        {
+                          "value": "Smartphones",
+                          "taxonomy": "merchant"
+                        }
+                      ],
+                      "priceRange": {
+                        "min": {
+                          "amount": 79900,
+                          "currency": "USD"
+                        },
+                        "max": {
+                          "amount": 109900,
+                          "currency": "USD"
+                        }
+                      },
+                      "images": [
+                        {
+                          "type": "image",
+                          "url": "https://quickmobile.onwavemaker.com/images/s25-front.jpg",
+                          "altText": "Samsung Galaxy S25 front view"
+                        }
+                      ],
+                      "attributes": [
+                        {
+                          "name": "color",
+                          "choices": [
+                            {
+                              "displayName": "Phantom Black"
+                            },
+                            {
+                              "displayName": "Cream"
+                            }
+                          ]
+                        },
+                        {
+                          "name": "storage",
+                          "choices": [
+                            {
+                              "displayName": "128GB"
+                            },
+                            {
+                              "displayName": "256GB"
+                            }
+                          ]
+                        }
+                      ],
+                      "skus": [
+                        {
+                          "id": "var_s25_blk_256",
+                          "name": "Samsung Galaxy S25 \u2014 Phantom Black 256GB",
+                          "description": {
+                            "plain": "Samsung Galaxy S25 Phantom Black 256GB"
+                          },
+                          "unitPrice": {
+                            "amount": 99900,
+                            "currency": "USD"
+                          },
+                          "attributes": [
+                            {
+                              "name": "color",
+                              "displayName": "Phantom Black"
+                            },
+                            {
+                              "name": "storage",
+                              "displayName": "256GB"
+                            }
+                          ]
+                        }
+                      ],
+                      "reviewSummary": {
+                        "value": 4.7,
+                        "scaleMax": 5,
+                        "count": 1320
+                      }
+                    }
+                  ],
+                  "page": {
+                    "hasNextPage": false,
+                    "totalCount": 2
+                  },
+                  "messages": []
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/products/batch": {
+      "post": {
+        "tags": [
+          "Products"
+        ],
+        "operationId": "batchFetchProducts",
+        "summary": "Retrieve products or SKUs by ID (batch)",
+        "description": "Fetch one or more products or SKUs by identifier. Products not found are reported in messages[]. Response may have fewer products than requested IDs. Structure identical to UCP catalog lookup \u2014 only field names differ.\n",
+        "parameters": [
+          {
+            "name": "X-Client-Id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "qm-storefront-v1"
+          },
+          {
+            "name": "Request-Id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BatchFetchRequest"
+              },
+              "example": {
+                "itemIds": [
+                  "prod_samsung_s25",
+                  "var_s25_blk_256"
+                ],
+                "buyerContext": {
+                  "country": "US",
+                  "preferredCurrency": "USD"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Batch fetch results (partial success allowed)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BatchFetchResponse"
+                },
+                "example": {
+                  "apiVersion": "2026-04-08",
+                  "products": [
+                    {
+                      "id": "prod_samsung_s25",
+                      "name": "Samsung Galaxy S25",
+                      "description": {
+                        "plain": "Samsung flagship with Snapdragon 8 Elite."
+                      },
+                      "priceRange": {
+                        "min": {
+                          "amount": 79900,
+                          "currency": "USD"
+                        },
+                        "max": {
+                          "amount": 109900,
+                          "currency": "USD"
+                        }
+                      },
+                      "skus": [
+                        {
+                          "id": "var_s25_blk_256",
+                          "name": "Samsung Galaxy S25 \u2014 Phantom Black 256GB",
+                          "description": {
+                            "plain": "Samsung Galaxy S25 Phantom Black 256GB"
+                          },
+                          "unitPrice": {
+                            "amount": 99900,
+                            "currency": "USD"
+                          },
+                          "matchedInputs": [
+                            {
+                              "id": "var_s25_blk_256",
+                              "match": "exact"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ],
+                  "messages": []
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/products/detail": {
+      "post": {
+        "tags": [
+          "Products"
+        ],
+        "operationId": "getProductDetail",
+        "summary": "Get full product detail by ID",
+        "description": "Retrieve complete product information for a single product or SKU. Supports interactive attribute selection via selectedAttributes[] \u2014 pass partial selections to get availability signals on remaining attributes. Structure identical to UCP get_product \u2014 only field names differ.\n",
+        "parameters": [
+          {
+            "name": "X-Client-Id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "qm-storefront-v1"
+          },
+          {
+            "name": "Request-Id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetProductDetailRequest"
+              },
+              "example": {
+                "itemId": "prod_samsung_s25",
+                "selectedAttributes": [
+                  {
+                    "name": "color",
+                    "displayName": "Phantom Black"
+                  }
+                ],
+                "buyerContext": {
+                  "country": "US",
+                  "preferredCurrency": "USD"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Full product detail or error if not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetProductDetailResponse"
+                },
+                "examples": {
+                  "found": {
+                    "summary": "Product found",
+                    "value": {
+                      "apiVersion": "2026-04-08",
+                      "product": {
+                        "id": "prod_samsung_s25",
+                        "slug": "samsung-galaxy-s25",
+                        "name": "Samsung Galaxy S25",
+                        "description": {
+                          "plain": "Samsung flagship with Snapdragon 8 Elite, 50MP camera, 4000mAh battery.",
+                          "html": "<p>Samsung flagship with Snapdragon 8 Elite.</p>"
+                        },
+                        "productUrl": "https://quickmobile.onwavemaker.com/devices/samsung-galaxy-s25",
+                        "categories": [
+                          {
+                            "value": "Smartphones",
+                            "taxonomy": "merchant"
+                          }
+                        ],
+                        "priceRange": {
+                          "min": {
+                            "amount": 79900,
+                            "currency": "USD"
+                          },
+                          "max": {
+                            "amount": 109900,
+                            "currency": "USD"
+                          }
+                        },
+                        "images": [
+                          {
+                            "type": "image",
+                            "url": "https://quickmobile.onwavemaker.com/images/s25-front.jpg",
+                            "altText": "Samsung Galaxy S25 front"
+                          },
+                          {
+                            "type": "image",
+                            "url": "https://quickmobile.onwavemaker.com/images/s25-back.jpg",
+                            "altText": "Samsung Galaxy S25 back"
+                          }
+                        ],
+                        "attributes": [
+                          {
+                            "name": "color",
+                            "choices": [
+                              {
+                                "displayName": "Phantom Black",
+                                "inStock": true,
+                                "inCatalog": true
+                              },
+                              {
+                                "displayName": "Cream",
+                                "inStock": true,
+                                "inCatalog": true
+                              }
+                            ]
+                          },
+                          {
+                            "name": "storage",
+                            "choices": [
+                              {
+                                "displayName": "128GB",
+                                "inStock": true,
+                                "inCatalog": true
+                              },
+                              {
+                                "displayName": "256GB",
+                                "inStock": true,
+                                "inCatalog": true
+                              }
+                            ]
+                          }
+                        ],
+                        "selectedAttributes": [
+                          {
+                            "name": "color",
+                            "displayName": "Phantom Black"
+                          }
+                        ],
+                        "skus": [
+                          {
+                            "id": "var_s25_blk_128",
+                            "name": "Samsung Galaxy S25 \u2014 Phantom Black 128GB",
+                            "description": {
+                              "plain": "Samsung Galaxy S25 Phantom Black 128GB"
+                            },
+                            "unitPrice": {
+                              "amount": 79900,
+                              "currency": "USD"
+                            },
+                            "originalUnitPrice": {
+                              "amount": 84900,
+                              "currency": "USD"
+                            },
+                            "attributes": [
+                              {
+                                "name": "color",
+                                "displayName": "Phantom Black"
+                              },
+                              {
+                                "name": "storage",
+                                "displayName": "128GB"
+                              }
+                            ],
+                            "reviewSummary": {
+                              "value": 4.7,
+                              "scaleMax": 5,
+                              "count": 1320
+                            }
+                          },
+                          {
+                            "id": "var_s25_blk_256",
+                            "name": "Samsung Galaxy S25 \u2014 Phantom Black 256GB",
+                            "description": {
+                              "plain": "Samsung Galaxy S25 Phantom Black 256GB"
+                            },
+                            "unitPrice": {
+                              "amount": 99900,
+                              "currency": "USD"
+                            },
+                            "attributes": [
+                              {
+                                "name": "color",
+                                "displayName": "Phantom Black"
+                              },
+                              {
+                                "name": "storage",
+                                "displayName": "256GB"
+                              }
+                            ]
+                          }
+                        ],
+                        "reviewSummary": {
+                          "value": 4.7,
+                          "scaleMax": 5,
+                          "count": 1320
+                        },
+                        "tags": [
+                          "5G",
+                          "Android",
+                          "Samsung"
+                        ]
+                      },
+                      "messages": []
+                    }
+                  },
+                  "not_found": {
+                    "summary": "Product not found",
+                    "value": {
+                      "apiVersion": "2026-04-08",
+                      "status": "error",
+                      "messages": [
+                        {
+                          "type": "error",
+                          "code": "not_found",
+                          "content": "Product with id 'prod_unknown_xyz' not found",
+                          "severity": "unrecoverable"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "SearchProductsRequest": {
+        "type": "object",
+        "description": "All fields optional. UCP SearchRequest equivalent with business field names.",
+        "properties": {
+          "keyword": {
+            "type": "string",
+            "description": "Free-text search keyword (UCP: query)",
+            "example": "Samsung Galaxy"
+          },
+          "buyerContext": {
+            "$ref": "#/components/schemas/BuyerContext"
+          },
+          "signals": {
+            "$ref": "#/components/schemas/Signals"
+          },
+          "attribution": {
+            "$ref": "#/components/schemas/Attribution"
+          },
+          "productFilters": {
+            "$ref": "#/components/schemas/ProductFilters"
+          },
+          "page": {
+            "$ref": "#/components/schemas/PageRequest"
+          }
+        }
+      },
+      "BatchFetchRequest": {
+        "type": "object",
+        "required": [
+          "itemIds"
+        ],
+        "description": "UCP LookupRequest equivalent with business field names.",
+        "properties": {
+          "itemIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "description": "Product or SKU IDs (UCP: ids)",
+            "example": [
+              "prod_samsung_s25",
+              "var_s25_blk_256"
+            ]
+          },
+          "productFilters": {
+            "$ref": "#/components/schemas/ProductFilters"
+          },
+          "buyerContext": {
+            "$ref": "#/components/schemas/BuyerContext"
+          },
+          "signals": {
+            "$ref": "#/components/schemas/Signals"
+          },
+          "attribution": {
+            "$ref": "#/components/schemas/Attribution"
+          }
+        }
+      },
+      "GetProductDetailRequest": {
+        "type": "object",
+        "required": [
+          "itemId"
+        ],
+        "description": "UCP GetProductRequest equivalent with business field names.",
+        "properties": {
+          "itemId": {
+            "type": "string",
+            "description": "Product or SKU identifier (UCP: id)",
+            "example": "prod_samsung_s25"
+          },
+          "selectedAttributes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SelectedAttribute"
+            },
+            "description": "Partial attribute selections for interactive SKU narrowing (UCP: selected)"
+          },
+          "preferences": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Attribute relaxation priority order",
+            "example": [
+              "color",
+              "storage"
+            ]
+          },
+          "productFilters": {
+            "$ref": "#/components/schemas/ProductFilters"
+          },
+          "buyerContext": {
+            "$ref": "#/components/schemas/BuyerContext"
+          },
+          "signals": {
+            "$ref": "#/components/schemas/Signals"
+          },
+          "attribution": {
+            "$ref": "#/components/schemas/Attribution"
+          }
+        }
+      },
+      "SearchProductsResponse": {
+        "type": "object",
+        "required": [
+          "apiVersion",
+          "products"
+        ],
+        "properties": {
+          "apiVersion": {
+            "type": "string",
+            "description": "API version (UCP: ucp.version)",
+            "example": "2026-04-08"
+          },
+          "products": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BusinessProduct"
+            }
+          },
+          "page": {
+            "$ref": "#/components/schemas/PageResponse"
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Message"
+            }
+          }
+        }
+      },
+      "BatchFetchResponse": {
+        "type": "object",
+        "required": [
+          "apiVersion",
+          "products"
+        ],
+        "properties": {
+          "apiVersion": {
+            "type": "string",
+            "example": "2026-04-08"
+          },
+          "products": {
+            "type": "array",
+            "description": "Matched products. SKUs carry matchedInputs[] correlation. May be fewer than requested IDs.",
+            "items": {
+              "$ref": "#/components/schemas/BatchFetchProduct"
+            }
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Message"
+            }
+          }
+        }
+      },
+      "GetProductDetailResponse": {
+        "type": "object",
+        "required": [
+          "apiVersion"
+        ],
+        "properties": {
+          "apiVersion": {
+            "type": "string",
+            "example": "2026-04-08"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "success",
+              "error"
+            ]
+          },
+          "product": {
+            "nullable": true,
+            "$ref": "#/components/schemas/DetailBusinessProduct"
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Message"
+            }
+          }
+        }
+      },
+      "BusinessProduct": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "description",
+          "priceRange",
+          "skus"
+        ],
+        "description": "Business equivalent of UCP Product. Identical structure, renamed fields.",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Global product ID (UCP: id)",
+            "example": "prod_samsung_s25"
+          },
+          "slug": {
+            "type": "string",
+            "description": "URL-safe slug (UCP: handle)",
+            "example": "samsung-galaxy-s25"
+          },
+          "name": {
+            "type": "string",
+            "description": "Product display name (UCP: title)",
+            "example": "Samsung Galaxy S25"
+          },
+          "description": {
+            "$ref": "#/components/schemas/Description"
+          },
+          "productUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "Product page URL (UCP: url)",
+            "example": "https://quickmobile.onwavemaker.com/devices/samsung-galaxy-s25"
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Category"
+            },
+            "description": "Category (structure unchanged, same as UCP)"
+          },
+          "priceRange": {
+            "$ref": "#/components/schemas/PriceRange"
+          },
+          "originalPriceRange": {
+            "$ref": "#/components/schemas/PriceRange",
+            "description": "Pre-discount price range (UCP: list_price_range)"
+          },
+          "images": {
+            "type": "array",
+            "description": "Product images (UCP: media)",
+            "items": {
+              "$ref": "#/components/schemas/Image"
+            }
+          },
+          "attributes": {
+            "type": "array",
+            "description": "Product attributes/options (UCP: options)",
+            "items": {
+              "$ref": "#/components/schemas/ProductAttribute"
+            }
+          },
+          "skus": {
+            "type": "array",
+            "minItems": 1,
+            "description": "Product SKUs/variants (UCP: variants)",
+            "items": {
+              "$ref": "#/components/schemas/SKU"
+            }
+          },
+          "reviewSummary": {
+            "$ref": "#/components/schemas/ReviewSummary"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      },
+      "DetailBusinessProduct": {
+        "description": "Extends BusinessProduct. Used in getProductDetail response. Adds selectedAttributes[] and overrides attributes.choices with DetailAttributeChoice (carries inStock + inCatalog availability signals). UCP equivalent: DetailProduct.\n",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BusinessProduct"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "selectedAttributes": {
+                "type": "array",
+                "description": "Effective attribute selections anchoring the featured SKU (UCP: selected)",
+                "items": {
+                  "$ref": "#/components/schemas/SelectedAttribute"
+                }
+              },
+              "attributes": {
+                "type": "array",
+                "description": "Same as BusinessProduct.attributes but choices carry availability signals",
+                "items": {
+                  "$ref": "#/components/schemas/DetailProductAttribute"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "BatchFetchProduct": {
+        "description": "Extends BusinessProduct. Used in batchFetch response. SKUs carry matchedInputs[] for lookup correlation. UCP equivalent: LookupProduct.\n",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BusinessProduct"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "skus": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "$ref": "#/components/schemas/BatchFetchSKU"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "SKU": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "description",
+          "unitPrice"
+        ],
+        "description": "Business equivalent of UCP Variant. Identical structure, renamed fields.",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Global SKU ID (UCP: id)",
+            "example": "var_s25_blk_256"
+          },
+          "sku": {
+            "type": "string",
+            "example": "SAM-S25-BLK-256"
+          },
+          "barcodes": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "slug": {
+            "type": "string",
+            "description": "UCP: handle"
+          },
+          "name": {
+            "type": "string",
+            "description": "SKU display name (UCP: title)",
+            "example": "Samsung Galaxy S25 \u2014 Phantom Black 256GB"
+          },
+          "description": {
+            "$ref": "#/components/schemas/Description"
+          },
+          "productUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "UCP: url"
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Category"
+            }
+          },
+          "unitPrice": {
+            "$ref": "#/components/schemas/Price",
+            "description": "SKU sale price (UCP: price)"
+          },
+          "originalUnitPrice": {
+            "$ref": "#/components/schemas/Price",
+            "description": "SKU original/list price (UCP: list_price)"
+          },
+          "availability": {
+            "type": "object",
+            "description": "SKU purchase availability (UCP: availability)"
+          },
+          "attributes": {
+            "type": "array",
+            "description": "SelectedAttribute values defining this SKU (UCP: options)",
+            "items": {
+              "$ref": "#/components/schemas/SelectedAttribute"
+            }
+          },
+          "images": {
+            "type": "array",
+            "description": "UCP: media",
+            "items": {
+              "$ref": "#/components/schemas/Image"
+            }
+          },
+          "reviewSummary": {
+            "$ref": "#/components/schemas/ReviewSummary"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      },
+      "BatchFetchSKU": {
+        "description": "Extends SKU with matchedInputs[] lookup correlation (UCP: LookupVariant with inputs[]).",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/SKU"
+          },
+          {
+            "type": "object",
+            "required": [
+              "matchedInputs"
+            ],
+            "properties": {
+              "matchedInputs": {
+                "type": "array",
+                "minItems": 1,
+                "description": "Maps request IDs to this matched SKU (UCP: inputs)",
+                "items": {
+                  "$ref": "#/components/schemas/MatchedInput"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "Description": {
+        "type": "object",
+        "description": "Product/SKU description object (same structure as UCP). NOT a plain string.",
+        "properties": {
+          "plain": {
+            "type": "string",
+            "description": "Plain text content",
+            "example": "Samsung flagship with Snapdragon 8 Elite."
+          },
+          "html": {
+            "type": "string",
+            "description": "HTML-formatted content"
+          },
+          "markdown": {
+            "type": "string",
+            "description": "Markdown-formatted content"
+          }
+        }
+      },
+      "Category": {
+        "type": "object",
+        "required": [
+          "value"
+        ],
+        "description": "Category with value and optional taxonomy (same as UCP Category \u2014 structure unchanged).",
+        "properties": {
+          "value": {
+            "type": "string",
+            "description": "Category value or path (e.g. 'Smartphones')",
+            "example": "Smartphones"
+          },
+          "taxonomy": {
+            "type": "string",
+            "description": "Source taxonomy (e.g. merchant, google_product_category)",
+            "example": "merchant"
+          }
+        }
+      },
+      "Image": {
+        "type": "object",
+        "required": [
+          "type",
+          "url"
+        ],
+        "description": "Business equivalent of UCP Media. altText renamed from alt_text. No id field.",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Media type (UCP: type). Well-known: image, video",
+            "example": "image"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://quickmobile.onwavemaker.com/images/s25-front.jpg"
+          },
+          "altText": {
+            "type": "string",
+            "description": "Accessibility text (UCP: alt_text)",
+            "example": "Samsung Galaxy S25 front view"
+          },
+          "width": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Width in pixels"
+          },
+          "height": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Height in pixels"
+          }
+        }
+      },
+      "ProductAttribute": {
+        "type": "object",
+        "required": [
+          "name",
+          "choices"
+        ],
+        "description": "Business equivalent of UCP ProductOption. values renamed to choices.",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Attribute name (UCP: options.name)",
+            "example": "color"
+          },
+          "choices": {
+            "type": "array",
+            "description": "Available values for this attribute (UCP: values)",
+            "items": {
+              "$ref": "#/components/schemas/AttributeChoice"
+            }
+          }
+        }
+      },
+      "DetailProductAttribute": {
+        "type": "object",
+        "required": [
+          "name",
+          "choices"
+        ],
+        "description": "Same as ProductAttribute but choices carry availability signals (getProductDetail only).",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "color"
+          },
+          "choices": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DetailAttributeChoice"
+            }
+          }
+        }
+      },
+      "AttributeChoice": {
+        "type": "object",
+        "required": [
+          "displayName"
+        ],
+        "description": "Business equivalent of UCP OptionValue. label renamed to displayName. id is optional.",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Server-assigned identifier (UCP: id \u2014 optional)"
+          },
+          "displayName": {
+            "type": "string",
+            "description": "Display text for this choice (UCP: label)",
+            "example": "Phantom Black"
+          }
+        }
+      },
+      "DetailAttributeChoice": {
+        "description": "Extends AttributeChoice with availability signals (getProductDetail response only). UCP: DetailOptionValue.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/AttributeChoice"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "inStock": {
+                "type": "boolean",
+                "description": "Whether a SKU matching this choice is purchasable (UCP: available)"
+              },
+              "inCatalog": {
+                "type": "boolean",
+                "description": "Whether a SKU matching this choice exists in the catalog (UCP: exists)"
+              }
+            }
+          }
+        ]
+      },
+      "SelectedAttribute": {
+        "type": "object",
+        "required": [
+          "name",
+          "displayName"
+        ],
+        "description": "Business equivalent of UCP SelectedOption. label renamed to displayName.",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Attribute name (UCP: name)",
+            "example": "color"
+          },
+          "id": {
+            "type": "string",
+            "description": "Attribute value identifier (UCP: id \u2014 optional)"
+          },
+          "displayName": {
+            "type": "string",
+            "description": "Selected attribute value display name (UCP: label)",
+            "example": "Phantom Black"
+          }
+        }
+      },
+      "MatchedInput": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "description": "Business equivalent of UCP InputCorrelation. Maps a request ID to its matched SKU.",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Identifier from the batch request that resolved to this SKU (UCP: id)",
+            "example": "var_s25_blk_256"
+          },
+          "match": {
+            "type": "string",
+            "description": "How the request ID resolved (UCP: match): exact, featured",
+            "example": "exact"
+          }
+        }
+      },
+      "Price": {
+        "type": "object",
+        "required": [
+          "amount",
+          "currency"
+        ],
+        "description": "Price object (identical to UCP Price).",
+        "properties": {
+          "amount": {
+            "type": "integer",
+            "description": "Amount in ISO 4217 minor units (cents). 99900 = $999.00 (UCP: amount)",
+            "example": 99900
+          },
+          "currency": {
+            "type": "string",
+            "description": "ISO 4217 currency code (UCP: currency)",
+            "example": "USD"
+          }
+        }
+      },
+      "PriceRange": {
+        "type": "object",
+        "required": [
+          "min",
+          "max"
+        ],
+        "description": "Price range (identical structure to UCP PriceRange).",
+        "properties": {
+          "min": {
+            "$ref": "#/components/schemas/Price"
+          },
+          "max": {
+            "$ref": "#/components/schemas/Price"
+          }
+        }
+      },
+      "ProductFilters": {
+        "type": "object",
+        "description": "Business equivalent of UCP SearchFilters. categoryIds renamed from categories. priceRange.min/max are integers (NOT Price objects).",
+        "properties": {
+          "categoryIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Filter by category IDs (UCP: categories)",
+            "example": [
+              "cat_smartphones"
+            ]
+          },
+          "priceRange": {
+            "$ref": "#/components/schemas/PriceRangeFilter"
+          }
+        }
+      },
+      "PriceRangeFilter": {
+        "type": "object",
+        "description": "Business equivalent of UCP PriceFilter. min and max are integers (minor units), NOT Price objects.",
+        "properties": {
+          "min": {
+            "type": "integer",
+            "description": "Minimum price in ISO 4217 minor units (UCP: min)",
+            "example": 10000
+          },
+          "max": {
+            "type": "integer",
+            "description": "Maximum price in ISO 4217 minor units (UCP: max)",
+            "example": 150000
+          }
+        }
+      },
+      "BuyerContext": {
+        "type": "object",
+        "description": "Business equivalent of UCP Context.",
+        "properties": {
+          "country": {
+            "type": "string",
+            "description": "ISO 3166-1 alpha-2 country code (UCP: address_country)",
+            "example": "US"
+          },
+          "region": {
+            "type": "string",
+            "description": "Region/state code (UCP: address_region)",
+            "example": "CA"
+          },
+          "postalCode": {
+            "type": "string",
+            "description": "UCP: postal_code"
+          },
+          "intent": {
+            "type": "string",
+            "description": "Background context for buyer's intent (UCP: intent)"
+          },
+          "preferredLanguage": {
+            "type": "string",
+            "description": "Preferred language IETF BCP 47 (UCP: language)",
+            "example": "en"
+          },
+          "preferredCurrency": {
+            "type": "string",
+            "description": "Preferred currency ISO 4217 (UCP: currency)",
+            "example": "USD"
+          },
+          "loyaltyTiers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Buyer loyalty/eligibility claims in reverse-domain format (UCP: eligibility)",
+            "example": [
+              "com.quickmobile.loyalty.gold"
+            ]
+          }
+        }
+      },
+      "Signals": {
+        "type": "object",
+        "description": "Platform-provided environment signals (same structure as UCP Signals).",
+        "properties": {
+          "dev.ucp.buyer_ip": {
+            "type": "string",
+            "description": "Client's IP address (IPv4 or IPv6)"
+          },
+          "dev.ucp.user_agent": {
+            "type": "string",
+            "description": "Client's HTTP User-Agent header"
+          }
+        }
+      },
+      "Attribution": {
+        "type": "object",
+        "description": "Platform-emitted referral and conversion context (same as UCP Attribution).",
+        "additionalProperties": true
+      },
+      "ReviewSummary": {
+        "type": "object",
+        "required": [
+          "value",
+          "scaleMax"
+        ],
+        "description": "Business equivalent of UCP Rating. scale_max renamed to scaleMax, scale_min to scaleMin.",
+        "properties": {
+          "value": {
+            "type": "number",
+            "description": "Average rating value (UCP: value)",
+            "example": 4.7
+          },
+          "scaleMin": {
+            "type": "number",
+            "description": "Minimum rating scale value (UCP: scale_min)"
+          },
+          "scaleMax": {
+            "type": "number",
+            "description": "Maximum rating scale value \u2014 required (UCP: scale_max)",
+            "example": 5
+          },
+          "count": {
+            "type": "integer",
+            "description": "Number of reviews (UCP: count)",
+            "example": 1320
+          }
+        }
+      },
+      "PageRequest": {
+        "type": "object",
+        "description": "Business equivalent of UCP PaginationRequest.",
+        "properties": {
+          "cursor": {
+            "type": "string",
+            "description": "Opaque cursor from previous response (UCP: cursor)"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Requested page size (UCP: limit)",
+            "example": 10
+          }
+        }
+      },
+      "PageResponse": {
+        "type": "object",
+        "required": [
+          "hasNextPage"
+        ],
+        "description": "Business equivalent of UCP PaginationResponse.",
+        "properties": {
+          "cursor": {
+            "type": "string",
+            "description": "Cursor to fetch next page (UCP: cursor)"
+          },
+          "hasNextPage": {
+            "type": "boolean",
+            "description": "UCP: has_next_page",
+            "example": false
+          },
+          "totalCount": {
+            "type": "integer",
+            "description": "UCP: total_count",
+            "example": 2
+          }
+        }
+      },
+      "Message": {
+        "type": "object",
+        "required": [
+          "type",
+          "content"
+        ],
+        "description": "Error/warning/info message (same structure as UCP Message).",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "error",
+              "warning",
+              "info"
+            ]
+          },
+          "code": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string",
+            "description": "RFC 9535 JSONPath to the affected field"
+          },
+          "content_type": {
+            "type": "string",
+            "enum": [
+              "plain",
+              "markdown"
+            ]
+          },
+          "content": {
+            "type": "string"
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "recoverable",
+              "requires_buyer_input",
+              "requires_buyer_review",
+              "unrecoverable"
+            ],
+            "description": "Required for type=error"
+          },
+          "presentation": {
+            "type": "string",
+            "enum": [
+              "notice",
+              "disclosure"
+            ],
+            "description": "Required for type=warning"
+          },
+          "image_url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "required": [
+          "apiVersion",
+          "messages"
+        ],
+        "properties": {
+          "apiVersion": {
+            "type": "string",
+            "example": "2026-04-08"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "success",
+              "error"
+            ]
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Message"
+            }
+          }
+        }
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "Invalid request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "apiVersion": "2026-04-08",
+              "status": "error",
+              "messages": [
+                {
+                  "type": "error",
+                  "code": "invalid_request",
+                  "content": "itemIds must contain at least one entry",
+                  "severity": "unrecoverable"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "ServerError": {
+        "description": "Internal server error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "apiVersion": "2026-04-08",
+              "status": "error",
+              "messages": [
+                {
+                  "type": "error",
+                  "code": "internal_error",
+                  "content": "An unexpected error occurred",
+                  "severity": "unrecoverable"
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

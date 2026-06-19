@@ -14,7 +14,11 @@ import json
 import os
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SWAGGER = json.load(open(os.path.join(ROOT, "tests", "fixtures", "sample_client_swagger.json"), encoding="utf-8"))
+# Embedded swagger for the collection. Defaults to the QuickMobile catalog scenario used in local
+# testing; override with: python scripts/gen_postman.py <path-to-swagger.json>
+import sys
+_SWAGGER_PATH = sys.argv[1] if len(sys.argv) > 1 else os.path.join(ROOT, "tests", "fixtures", "quickmobile_swagger.json")
+SWAGGER = json.load(open(_SWAGGER_PATH, encoding="utf-8"))
 
 EP_TOKEN = "__ENDPOINT_MAPPINGS__"  # replaced with the unquoted {{endpoint_mappings}} variable
 

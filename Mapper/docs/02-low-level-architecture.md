@@ -1,5 +1,15 @@
 # 2. Low-Level Architecture & Flow
 
+> **⚠️ Current state (v0.3) — read first.** Since this was written the orchestrator was split into
+> **two phases** (`mapper/orchestrator.py`: `run_endpoint_mapping` → `run_field_mapping` (parallel) →
+> `run_mapping`) with per-phase prompts (`prompt_builder.build_endpoint_messages` /
+> `build_field_messages`) and per-phase output schemas (`phase_schemas.py`). New modules:
+> `structures.py` (UCP + swagger structures for the UI), `capabilities.py` (operation→capability).
+> The API now has 6 endpoints (see [README](../README.md)/[UI-INTEGRATION.md](UI-INTEGRATION.md)); the
+> field rows are JSON-validated and **coerced** (`_coerce_field`) so a bad model row can't fail the
+> whole artifact; output carries `capability`, row `id`s, and `coverage.by_capability`. The module
+> descriptions below are still broadly correct but predate the two-phase split.
+
 > **Audience:** a developer who has read [01-high-level-architecture.md](01-high-level-architecture.md)
 > and now wants the module-by-module design, data structures, and control flow. Hands-on example in
 > [03-walkthrough-and-technical-details.md](03-walkthrough-and-technical-details.md).

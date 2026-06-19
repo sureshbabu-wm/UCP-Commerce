@@ -1,5 +1,13 @@
 # 3. Walkthrough & Technical Details
 
+> **⚠️ Current state (v0.3) — read first.** Endpoints and flow have changed: the API is now
+> `/versions`, `/ucp/{version}/structure`, `/swagger/parse`, `/map/endpoints`, `/map/fields`, `/map`
+> (two-phase), default version **`2026-04-08`**, model **`gpt-4o`**, and Docker is the usual way to
+> run it. For exact request/response shapes use [UI-INTEGRATION.md](UI-INTEGRATION.md); to try it,
+> import [`postman/UCP-Mapper.postman_collection.json`](../postman/UCP-Mapper.postman_collection.json)
+> (the QuickMobile catalog sample is pre-filled). The walkthrough below uses the original
+> `create_checkout` example and remains useful for understanding the transforms/status concepts.
+
 > **Audience:** a developer who wants to run the Mapper, trace a real example end-to-end, and know
 > the operational details. Read [01](01-high-level-architecture.md) and
 > [02](02-low-level-architecture.md) first for context.
